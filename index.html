@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Alexandra Pratap Singh — ML Engineer &amp; Data Scientist</title>
+<meta name="description" content="Portfolio of Alexandra Pratap Singh — ML Engineer, Data Scientist, and PyPI author of pycleanframe." />
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="icon" href="https://avatars.githubusercontent.com/u/143160283?v=4" />
+<link rel="stylesheet" href="css/style.css" />
+
+<!-- Three.js (hero scene) + particles.js (ambient field) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- Ambient particle network (particles.js) -->
+  <div id="particles-bg" class="particles-bg" aria-hidden="true"></div>
+
+  <!-- HUD overlay / scanline / grid -->
+  <div class="fx-overlay" aria-hidden="true"></div>
+  <div class="fx-grid" aria-hidden="true"></div>
+  <div class="fx-vignette" aria-hidden="true"></div>
+
+  <!-- Boot / calibration gate -->
+  <div class="boot-screen" :class="{ 'is-hidden': booted }" aria-hidden="true">
+    <div class="boot-mark">A.P.S</div>
+    <div class="boot-bar"><div class="boot-bar-fill" :style="{ width: bootProgress + '%' }"></div></div>
+    <div class="boot-label">INITIALIZING FLIGHT COMPUTER // CALIBRATING LIMITS <span>{{ bootProgress }}%</span></div>
+  </div>
+
+  <!-- NAV -->
+  <header class="nav" :class="{ 'nav--solid': scrolled }">
+    <a href="#hero" class="nav-mark">A<span>PS</span></a>
+    <nav class="nav-links">
+      <a v-for="link in navLinks" :key="link.id" :href="'#' + link.id"
+         :class="{ active: activeSection === link.id }">{{ link.label }}</a>
+    </nav>
+    <button class="nav-toggle" @click="menuOpen = !menuOpen" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <a class="nav-cta" href="#contact">Transmit <em>&rarr;</em></a>
+  </header>
+
+  <div class="nav-mobile" v-if="menuOpen">
+    <a v-for="link in navLinks" :key="link.id" :href="'#' + link.id" @click="menuOpen = false">{{ link.label }}</a>
+  </div>
+
+  <main>
+
+    <!-- ============ HERO ============ -->
+    <section id="hero" class="hero">
+      <canvas ref="heroCanvas" class="hero-three" aria-hidden="true"></canvas>
+      <div class="hero-aura" aria-hidden="true"></div>
+      <div class="hero-horizon" aria-hidden="true"></div>
+
+      <div class="hero-content">
+        <p class="eyebrow" data-reveal><span class="eyebrow-dot"></span>PRAYAGRAJ, INDIA &middot; MCA DATA SCIENCE</p>
+        <h1 class="hero-title">
+          <span class="line">ALEXANDRA</span>
+          <span class="line hero-title--accent">PRATAP SINGH</span>
+        </h1>
+        <p class="hero-role" data-reveal>ML Engineer <span class="dot">&bull;</span> Data Scientist <span class="dot">&bull;</span> PyPI Author</p>
+        <p class="hero-desc" data-reveal>
+          I build ML systems, NLP pipelines and open-source Python tooling that solve real problems.
+          Every model retrained past its first pass. Every pipeline shipped past the point where
+          "good enough" lives — <strong>this is engineering with no ceiling.</strong>
+        </p>
+        <div class="hero-actions" data-reveal>
+          <a href="#projects" class="btn btn--primary">View Projects</a>
+          <a href="#simulator" class="btn btn--ghost">Enter the Simulator</a>
+        </div>
+      </div>
+
+      <div class="hero-stats" ref="heroStats">
+        <div class="stat" v-for="s in stats" :key="s.label">
+          <span class="stat-value" :data-count="s.value">0</span><span class="stat-suffix">{{ s.suffix }}</span>
+          <span class="stat-label">{{ s.label }}</span>
+        </div>
+      </div>
+
+      <a href="#about" class="scroll-cue" aria-label="Scroll down"><span></span></a>
+    </section>
+
+    <!-- ============ ABOUT ============ -->
+    <section id="about" class="about">
+      <div class="section-head">
+        <p class="section-eyebrow">LOG.01 // OPERATOR PROFILE</p>
+        <h2 class="section-title">The Build Behind the Model</h2>
+      </div>
+
+      <div class="about-grid">
+        <div class="about-card about-portrait">
+          <div class="about-portrait-frame">
+            <img src="https://avatars.githubusercontent.com/u/143160283?v=4" alt="Alexandra Pratap Singh" loading="lazy" />
+          </div>
+          <div class="about-portrait-glow" aria-hidden="true"></div>
+          <div class="about-portrait-tag">STATUS: <span>ACTIVE</span></div>
+        </div>
+
+        <div class="about-copy">
+          <p>
+            I'm Alexandra — currently pursuing my <strong>MCA in Data Science at the University of Allahabad</strong>,
+            and building things in the space between raw data and working software. My tools are Python,
+            scikit-learn, TensorFlow and PyTorch; my obsession is turning messy real-world data into
+            pipelines that actually hold up in production.
+          </p>
+          <p>
+            I published <strong>pycleanframe</strong> to PyPI — a decorator-based library that keeps
+            pandas DataFrames clean before they ever reach your function. I've trained classifiers
+            on 10,000+ equipment records, built NLP pipelines that cut recruiter review time by
+            60%, and shipped a full-stack vaccination tracker that placed top&nbsp;5 out of 198 teams
+            at UHACK&nbsp;3.0.
+          </p>
+
+          <div class="about-directive">
+            <span class="about-directive-tag">DIRECTIVE</span>
+            <p>No ceiling. Every project here shipped past its first working version — until it stopped
+              feeling like a student build and started feeling like it belonged in production.</p>
+          </div>
+
+          <div class="about-links">
+            <a href="https://github.com/alexandra272003" target="_blank" rel="noopener">GitHub &#8599;</a>
+            <a href="https://www.linkedin.com/in/alexandra-pratap-singh-aaab88282" target="_blank" rel="noopener">LinkedIn &#8599;</a>
+            <a href="https://pypi.org/project/pycleanframe/" target="_blank" rel="noopener">PyPI &#8599;</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SKILLS ============ -->
+    <section id="skills" class="skills">
+      <div class="section-head">
+        <p class="section-eyebrow">LOG.02 // SYSTEMS &amp; TOOLING</p>
+        <h2 class="section-title">Stack &amp; Techniques</h2>
+      </div>
+
+      <div class="skills-tabs" role="tablist" aria-label="Skill categories">
+        <div class="skills-tab-indicator" ref="skillsIndicator" aria-hidden="true"></div>
+        <button
+          v-for="(group, i) in skillGroups" :key="group.title"
+          class="skills-tab" :class="{ 'is-active': activeSkillIndex === i }"
+          :ref="el => setSkillsTabRef(el, i)"
+          role="tab" :aria-selected="activeSkillIndex === i"
+          @click="activeSkillIndex = i">
+          <span class="skills-tab-code">{{ group.code }}</span>
+          <span class="skills-tab-title">{{ group.title }}</span>
+        </button>
+      </div>
+
+      <div class="skills-panel-wrap">
+        <transition name="skill-swap" mode="out-in">
+          <div class="skills-panel" :key="activeSkillIndex" role="tabpanel">
+            <ul class="skills-panel-list">
+              <li v-for="(tool, ti) in skillGroups[activeSkillIndex].tools" :key="tool"
+                  :style="{ transitionDelay: (ti * 0.05) + 's' }">{{ tool }}</li>
+            </ul>
+          </div>
+        </transition>
+      </div>
+    </section>
+
+    <!-- ============ PROJECTS ============ -->
+    <section id="projects" class="projects">
+      <div class="section-head">
+        <p class="section-eyebrow">LOG.03 // MISSION ARCHIVE</p>
+        <h2 class="section-title">Project Archive</h2>
+      </div>
+
+      <div class="projects-filter">
+        <label class="projects-search">
+          <span class="projects-search-icon">&gt;</span>
+          <input type="text" v-model="searchQuery" placeholder="SEARCH ARCHIVE..." aria-label="Search projects" />
+        </label>
+        <div class="projects-tags" role="group" aria-label="Filter by tag">
+          <button
+            v-for="tag in allTags" :key="tag" class="tag-chip"
+            :class="{ 'is-active': activeTags.includes(tag) }"
+            @click="toggleTag(tag)">{{ tag }}</button>
+        </div>
+      </div>
+
+      <div class="projects-body">
+        <div class="projects-rail" aria-hidden="true"><div class="projects-rail-fill" ref="railFill"></div></div>
+
+        <transition-group tag="div" name="project-fade" class="projects-list">
+          <article class="project-row" v-for="(p, i) in filteredProjects" :key="p.name" :data-index="String(i+1).padStart(2,'0')">
+            <div class="project-row-index">{{ String(i+1).padStart(2,'0') }}</div>
+            <div class="project-row-main">
+              <h3>{{ p.name }}</h3>
+              <p class="project-tagline">{{ p.tagline }}</p>
+              <p class="project-desc">{{ p.desc }}</p>
+              <div class="project-tags">
+                <span v-for="t in p.tags" :key="t">{{ t }}</span>
+              </div>
+            </div>
+            <div class="project-row-side">
+              <div class="project-metric" v-if="p.metric">
+                <span class="metric-value">{{ p.metric }}</span>
+                <span class="metric-label">{{ p.metricLabel }}</span>
+              </div>
+              <a :href="p.url" target="_blank" rel="noopener" class="project-link">Repo &rarr;</a>
+            </div>
+          </article>
+        </transition-group>
+      </div>
+
+      <transition name="empty-fade">
+        <p class="projects-empty" v-if="filteredProjects.length === 0">NO RECORDS MATCH THAT QUERY.</p>
+      </transition>
+    </section>
+
+    <!-- ============ SIMULATOR ============ -->
+    <section id="simulator" class="arcade">
+      <div class="section-head">
+        <p class="section-eyebrow">LOG.04 // SIMULATION DECK</p>
+        <h2 class="section-title">Beyond Human Limits</h2>
+        <p class="section-sub">Play Flappy Bird or dodge an alien swarm — cuz why not. No autopilot, just reflexes.</p>
+      </div>
+
+      <div class="arcade-grid">
+        <div class="arcade-card">
+          <div class="arcade-card-glow arcade-card-glow--cyan" aria-hidden="true"></div>
+          <div class="arcade-card-thumb">
+            <img src="images/game-flappy-preview.png" alt="Flappy Bird gameplay preview — cyan bird threading amber pipes" loading="lazy" />
+          </div>
+          <span class="arcade-code">SIM.01</span>
+          <h3>Flappy Bird</h3>
+          <p>Written by hand, because why not. Thread the gaps, one tap at a time.</p>
+          <button class="btn btn--primary" @click="openGame('flappy')">Run Simulation I</button>
+        </div>
+        <div class="arcade-card">
+          <div class="arcade-card-glow arcade-card-glow--amber" aria-hidden="true"></div>
+          <div class="arcade-card-thumb">
+            <img src="images/game-alien-preview.png" alt="Alien Onslaught gameplay preview — wave of aliens under fire" loading="lazy" />
+          </div>
+          <span class="arcade-code">SIM.02</span>
+          <h3>Alien Onslaught</h3>
+          <p>Waves scale forever. Survive the swarm, outgun the drop-off.</p>
+          <button class="btn btn--primary" @click="openGame('alien')">Run Simulation II</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CONTACT ============ -->
+    <section id="contact" class="contact">
+      <div class="hero-aura hero-aura--contact" aria-hidden="true"></div>
+      <p class="section-eyebrow">LOG.05 // TRANSMIT</p>
+      <h2 class="section-title contact-title">Let's build something<br />with no ceiling.</h2>
+      <div class="contact-actions">
+        <a href="mailto:alexandraofficial2003@gmail.com" class="btn btn--primary">alexandraofficial2003@gmail.com</a>
+      </div>
+      <div class="contact-links">
+        <a href="https://github.com/alexandra272003" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://www.linkedin.com/in/alexandra-pratap-singh-aaab88282" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://pypi.org/project/pycleanframe/" target="_blank" rel="noopener">PyPI</a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <span>&copy; 2026 Alexandra Pratap Singh. Built with Vue, GSAP, and stubbornness.</span>
+  </footer>
+
+  <!-- ============ GAME MODAL ============ -->
+  <div class="game-modal" v-if="activeGame" @click.self="closeGame">
+    <div class="game-modal-panel">
+      <div class="game-modal-head">
+        <span>{{ activeGame === 'flappy' ? 'SIM.01 — FLAPPY BIRD' : 'SIM.02 — ALIEN ONSLAUGHT' }}</span>
+        <button class="game-modal-close" @click="closeGame" aria-label="Close game">&times;</button>
+      </div>
+      <div class="game-modal-body">
+        <canvas ref="gameCanvas" id="game-canvas" width="480" height="640"></canvas>
+        <div class="game-hint">{{ activeGame === 'flappy' ? 'Click / Tap / Space to flap' : 'Arrow Keys or A/D to move — Space to fire' }}</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://unpkg.com/vue@3.4.31/dist/vue.global.prod.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="js/heroScene.js"></script>
+<script src="js/particlesConfig.js"></script>
+<script src="js/games/flappyBird.js"></script>
+<script src="js/games/alienShooter.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
