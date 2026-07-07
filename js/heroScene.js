@@ -8,13 +8,21 @@
     if (typeof THREE === 'undefined' || !canvas) return null;
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    // Skip the Three.js scene entirely on mobile / coarse-pointer devices.
+    // A spinning WebGL scene on top of particles.js on top of a game modal is
+    // too much GPU work for Android Chrome — the canvas just shows transparent.
+    const isMobile = window.matchMedia('(pointer: coarse)').matches;
+    if (isMobile) return null;
+
     let renderer;
     try {
-      renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
     } catch (e) {
       return null; // no WebGL — hero copy still works fine without it
     }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    // Cap pixel ratio at 1.5 — going to 3× on retina mobile wastes GPU for no
+    // visible gain at the small sizes the hero canvas renders at.
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
@@ -40,7 +48,7 @@
     group.add(fill);
 
     // Ambient particle field — ignition amber, scattered in a shell around the core
-    const PARTICLE_COUNT = 220;
+    const PARTICLE_COUNT = 160; // reduced from 220 — imperceptibly lighter on mid-range GPUs
     const positions = new Float32Array(PARTICLE_COUNT * 3);
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       const r = 3.3 + Math.random() * 2.4;

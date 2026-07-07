@@ -402,10 +402,51 @@ createApp({
     const menuOpen = ref(false);
     const activeSection = ref('hero');
     const sectionIds = ['hero', 'about', 'skills', 'projects', 'simulator', 'contact'];
+    const scrollProgress = ref(null);
+    const avatarLoaded = ref(false);
+
+    /* ---------------- Theme Management ---------------- */
+
+    const THEME_KEY = 'aps_portfolio_theme';
+    const isDark = ref(true);
+
+    function initTheme(){
+      // Check localStorage first, then system preference
+      const saved = localStorage.getItem(THEME_KEY);
+      if(saved){
+        isDark.value = saved === 'dark';
+      } else {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        isDark.value = prefersDark;
+      }
+      applyTheme();
+    }
+
+    function toggleTheme(){
+      isDark.value = !isDark.value;
+      localStorage.setItem(THEME_KEY, isDark.value ? 'dark' : 'light');
+      applyTheme();
+    }
+
+    function applyTheme(){
+      if(isDark.value){
+        document.documentElement.classList.remove('light-theme');
+      } else {
+        document.documentElement.classList.add('light-theme');
+      }
+    }
 
     function initObservers(){
+      // Scroll progress bar
       window.addEventListener('scroll', () => {
         scrolled.value = window.scrollY > 10;
+        
+        // Update scroll progress indicator
+        if(scrollProgress.value){
+          const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+          const scrollPercent = (window.scrollY / docHeight) * 100;
+          scrollProgress.value.style.transform = `scaleX(${scrollPercent / 100})`;
+        }
       }, { passive: true });
 
       const observer = new IntersectionObserver((entries) => {
@@ -424,10 +465,16 @@ createApp({
 
     const activeGame = ref(null);
     const gameCanvas = ref(null);
+    const isMobile = window.matchMedia('(pointer: coarse)').matches;
+    const screenW = window.innerWidth;
+    const screenH = window.innerHeight;
     let runningGame = null;
 
     function openGame(key){
       activeGame.value = key;
+      // Lock body scroll while the game modal is open — prevents the page from
+      // scrolling when the player swipes on Android Chrome.
+      document.body.classList.add('game-open');
       nextTick(() => {
         const canvas = gameCanvas.value;
         if(!canvas) return;
@@ -443,11 +490,13 @@ createApp({
       if(runningGame && typeof runningGame.destroy === 'function') runningGame.destroy();
       runningGame = null;
       activeGame.value = null;
+      document.body.classList.remove('game-open');
     }
 
     /* ---------------- Lifecycle ---------------- */
 
     onMounted(() => {
+      initTheme();
       initObservers();
       initScrollReveals();
       initCursor();
@@ -461,16 +510,40 @@ createApp({
       runBoot();
       nextTick(moveSkillsIndicator);
       window.addEventListener('resize', moveSkillsIndicator);
+      
+      // Keyboard navigation: Escape closes game modal
+      window.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape' && activeGame.value) closeGame();
+      });
+
+      // Smooth scroll for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener('click', function (e) {
+          const href = this.getAttribute('href');
+          if(href === '#' || !href) return;
+          const target = document.querySelector(href);
+          if(target){
+            e.preventDefault();
+            menuOpen.value = false; // Close mobile menu if open
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Update URL without jumping
+            history.pushState(null, '', href);
+          }
+        });
+      });
     });
 
     return {
       navLinks, stats, skillGroups, projects,
       booted, bootProgress,
-      scrolled, menuOpen, activeSection,
+      scrolled, menuOpen, activeSection, scrollProgress,
       activeGame, gameCanvas, openGame, closeGame,
+      isMobile, screenW, screenH,
       activeSkillIndex, setSkillsTabRef, skillsIndicator,
       searchQuery, activeTags, allTags, filteredProjects, toggleTag,
       heroCanvas, railFill,
+      isDark, toggleTheme,
+      avatarLoaded,
     };
   },
 }).mount('#app');

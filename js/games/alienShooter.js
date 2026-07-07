@@ -9,6 +9,10 @@
   const AVATAR_URL = 'https://avatars.githubusercontent.com/u/143160283?v=4&s=256';
   const TAGLINE = 'FLAPPY BIRD OR ALIEN SHOOTING... CUZ WHY NOT?';
 
+  // Detect low-end / mobile devices
+  const isMobile = window.matchMedia('(pointer: coarse)').matches;
+  const isLowEnd = isMobile || (navigator.hardwareConcurrency != null && navigator.hardwareConcurrency <= 4);
+
   const avatarImg = new Image();
   let avatarReady = false;
   avatarImg.onload = () => { avatarReady = true; };
@@ -39,14 +43,49 @@
     const ctx = canvas.getContext('2d');
     const W = canvas.width, H = canvas.height;
 
-    const PLAYER_W = 34, PLAYER_H = 18, PLAYER_SPEED = 5.2;
-    const BULLET_SPEED = 8, FIRE_COOLDOWN = 13;
+    const PLAYER_W = 34, PLAYER_H = 18;
+    const PLAYER_SPEED = 5.2;
+    const BULLET_SPEED = 8;
+    // Slower fire rate on mobile so fewer bullets exist simultaneously
+    const FIRE_COOLDOWN = isMobile ? 18 : 13;
     const ALIEN_W = 26, ALIEN_H = 18;
+
+    // Hard caps to prevent runaway complexity on high waves
+    const MAX_PARTICLES   = isLowEnd ? 40  : 120;
+    const MAX_ALIEN_BULLETS = isLowEnd ? 6  : 20;
+    const MAX_WAVE        = isLowEnd ? 12  : 50; // difficulty plateaus at this wave
+
+    // Target FPS throttle on mobile (30 fps is plenty for a game this simple)
+    const TARGET_FPS    = isMobile ? 30 : 60;
+    const FRAME_INTERVAL = 1000 / TARGET_FPS;
+    let lastFrameTime    = 0;
+
+    // Skip drawing the background grid every frame — only redraw every N frames
+    const GRID_EVERY = isLowEnd ? 6 : 1;
 
     let player, bullets, alienBullets, aliens, particles;
     let wave, score, best, lives, state, frame, fireTimer;
     let groupDir, groupOffsetX, groupDropY, groupSpeed;
     let keys, pointerActive, pointerX, pointerFire, animId, hitFlash;
+    let gridDrawn = false; // offscreen grid cache
+    let gridCanvas = null, gridCtx = null;
+
+    /* ---- Off-screen grid: draw once, blit every frame ---- */
+    function buildGridCache(){
+      gridCanvas = document.createElement('canvas');
+      gridCanvas.width = W;
+      gridCanvas.height = H;
+      gridCtx = gridCanvas.getContext('2d');
+      gridCtx.strokeStyle = 'rgba(237,242,247,0.05)';
+      gridCtx.lineWidth = 1;
+      for(let gx = 0; gx < W; gx += 32){
+        gridCtx.beginPath(); gridCtx.moveTo(gx, 0); gridCtx.lineTo(gx, H); gridCtx.stroke();
+      }
+      for(let gy = 0; gy < H; gy += 32){
+        gridCtx.beginPath(); gridCtx.moveTo(0, gy); gridCtx.lineTo(W, gy); gridCtx.stroke();
+      }
+      gridDrawn = true;
+    }
 
     function reset(){
       player = { x: W / 2 - PLAYER_W / 2, y: H - 56, invuln: 0 };
@@ -58,10 +97,19 @@
       spawnWave();
     }
 
+    function effectiveWave(){
+      // Clamp wave difficulty so later waves don't keep piling on
+      return Math.min(wave, MAX_WAVE);
+    }
+
     function spawnWave(){
       wave++;
-      const cols = Math.min(9, 4 + Math.ceil(wave / 2));
-      const rows = Math.min(5, 2 + Math.floor(wave / 3));
+      const ew = effectiveWave();
+      // Tighter column/row caps on mobile
+      const maxCols = isMobile ? 7 : 9;
+      const maxRows = isMobile ? 4 : 5;
+      const cols = Math.min(maxCols, 4 + Math.ceil(ew / 2));
+      const rows = Math.min(maxRows, 2 + Math.floor(ew / 3));
       const spacingX = 42, spacingY = 34;
       const totalW = (cols - 1) * spacingX;
       const startX = (W - totalW) / 2;
@@ -81,12 +129,18 @@
       groupDir = 1;
       groupOffsetX = 0;
       groupDropY = 0;
-      groupSpeed = Math.min(2.6, 0.55 + wave * 0.14);
+      // Speed caps out earlier on mobile so it never becomes uncontrollable
+      const speedCap = isMobile ? 1.8 : 2.6;
+      groupSpeed = Math.min(speedCap, 0.55 + ew * 0.14);
       alienBullets = [];
     }
 
     function burst(x, y, color, count){
-      for(let i = 0; i < count; i++){
+      // Respect the global particle cap
+      const space = MAX_PARTICLES - particles.length;
+      if(space <= 0) return;
+      const n = Math.min(count, space);
+      for(let i = 0; i < n; i++){
         particles.push({
           x, y,
           vx: (Math.random() - 0.5) * 5,
@@ -103,7 +157,7 @@
       if(state !== 'playing' || fireTimer > 0) return;
       bullets.push({ x: player.x + PLAYER_W / 2 - 2, y: player.y - 6 });
       fireTimer = FIRE_COOLDOWN;
-      burst(player.x + PLAYER_W / 2, player.y - 6, '#3fe0d0', 2);
+      burst(player.x + PLAYER_W / 2, player.y - 6, '#3fe0d0', isMobile ? 1 : 2);
     }
 
     function hitPlayer(){
@@ -111,7 +165,7 @@
       lives--;
       player.invuln = 90;
       hitFlash = 10;
-      burst(player.x + PLAYER_W / 2, player.y, '#ff8a42', 16);
+      burst(player.x + PLAYER_W / 2, player.y, '#ff8a42', isMobile ? 8 : 16);
       if(lives <= 0){
         state = 'dead';
         if(score > best){ best = score; localStorage.setItem(STORAGE_KEY, String(best)); }
@@ -155,13 +209,18 @@
           groupDropY += 16;
         }
 
-        // alien fire
-        if(alive.length && frame % Math.max(18, 50 - wave * 2) === 0){
-          const shooter = alive[Math.floor(Math.random() * alive.length)];
-          alienBullets.push({
-            x: shooter.baseX + groupOffsetX + ALIEN_W / 2,
-            y: shooter.baseY + groupDropY + ALIEN_H,
-          });
+        // alien fire — frequency is capped so later waves don't fire every frame
+        const ew = effectiveWave();
+        const fireEvery = Math.max(isMobile ? 28 : 18, 50 - ew * 2);
+        if(alive.length && frame % fireEvery === 0){
+          // Hard-cap alien bullet count to avoid filling memory on mobile
+          if(alienBullets.length < MAX_ALIEN_BULLETS){
+            const shooter = alive[Math.floor(Math.random() * alive.length)];
+            alienBullets.push({
+              x: shooter.baseX + groupOffsetX + ALIEN_W / 2,
+              y: shooter.baseY + groupDropY + ALIEN_H,
+            });
+          }
         }
 
         // bullets
@@ -177,8 +236,8 @@
             const ax = a.baseX + groupOffsetX, ay = a.baseY + groupDropY;
             if(b.x > ax - 4 && b.x < ax + ALIEN_W + 4 && b.y > ay - 4 && b.y < ay + ALIEN_H + 4){
               a.alive = false; b.y = -999;
-              score += 10 + wave;
-              burst(ax + ALIEN_W / 2, ay + ALIEN_H / 2, a.tier === 0 ? '#ff8a42' : '#3fe0d0', 10);
+              score += 10 + ew;
+              burst(ax + ALIEN_W / 2, ay + ALIEN_H / 2, a.tier === 0 ? '#ff8a42' : '#3fe0d0', isMobile ? 5 : 10);
             }
           });
         });
@@ -207,15 +266,24 @@
     }
 
     function drawGrid(){
-      ctx.strokeStyle = 'rgba(237,242,247,0.05)';
-      ctx.lineWidth = 1;
-      for(let gx = 0; gx < W; gx += 32){ ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
-      for(let gy = 0; gy < H; gy += 32){ ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
+      if(isLowEnd){
+        // Use cached offscreen canvas — one drawImage instead of dozens of strokes
+        if(!gridDrawn) buildGridCache();
+        ctx.drawImage(gridCanvas, 0, 0);
+      } else {
+        ctx.strokeStyle = 'rgba(237,242,247,0.05)';
+        ctx.lineWidth = 1;
+        for(let gx = 0; gx < W; gx += 32){ ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
+        for(let gy = 0; gy < H; gy += 32){ ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
+      }
     }
 
     function drawAlien(x, y, tier){
       const color = tier === 0 ? '#ff8a42' : '#3fe0d0';
-      ctx.shadowColor = color; ctx.shadowBlur = 8;
+      // Skip shadow blur on mobile — it's one of the most expensive canvas ops
+      if(!isLowEnd){
+        ctx.shadowColor = color; ctx.shadowBlur = 8;
+      }
       ctx.fillStyle = color;
       ctx.fillRect(x, y, ALIEN_W, ALIEN_H);
       ctx.shadowBlur = 0;
@@ -227,7 +295,9 @@
     function drawPlayer(){
       if(player.invuln > 0 && Math.floor(frame / 4) % 2 === 0) return;
       const cx = player.x + PLAYER_W / 2;
-      ctx.shadowColor = 'rgba(63,224,208,0.6)'; ctx.shadowBlur = 12;
+      if(!isLowEnd){
+        ctx.shadowColor = 'rgba(63,224,208,0.6)'; ctx.shadowBlur = 12;
+      }
       ctx.fillStyle = '#3fe0d0';
       ctx.beginPath();
       ctx.moveTo(cx, player.y);
@@ -247,12 +317,12 @@
 
       aliens.forEach((a) => { if(a.alive) drawAlien(a.baseX + groupOffsetX, a.baseY + groupDropY, a.tier); });
 
-      ctx.shadowColor = 'rgba(63,224,208,0.7)'; ctx.shadowBlur = 8;
+      if(!isLowEnd){ ctx.shadowColor = 'rgba(63,224,208,0.7)'; ctx.shadowBlur = 8; }
       ctx.fillStyle = '#3fe0d0';
       bullets.forEach((b) => { ctx.fillRect(b.x - 2, b.y - 8, 4, 12); });
       ctx.shadowBlur = 0;
 
-      ctx.shadowColor = 'rgba(255,138,66,0.7)'; ctx.shadowBlur = 8;
+      if(!isLowEnd){ ctx.shadowColor = 'rgba(255,138,66,0.7)'; ctx.shadowBlur = 8; }
       ctx.fillStyle = '#ff8a42';
       alienBullets.forEach((b) => { ctx.fillRect(b.x - 2, b.y - 6, 4, 10); });
       ctx.shadowBlur = 0;
@@ -312,10 +382,14 @@
       }
     }
 
-    function loop(){
+    /* ---- RAF loop with FPS throttle ---- */
+    function loop(timestamp){
+      animId = requestAnimationFrame(loop);
+      const elapsed = timestamp - lastFrameTime;
+      if(elapsed < FRAME_INTERVAL) return; // skip frame — not time yet
+      lastFrameTime = timestamp - (elapsed % FRAME_INTERVAL); // stay aligned
       update();
       draw();
-      animId = requestAnimationFrame(loop);
     }
 
     function onKeyDown(e){
@@ -343,6 +417,7 @@
     }
     function onPointerMove(e){
       if(!pointerActive) return;
+      e.preventDefault();
       pointerX = canvasPoint(e);
     }
     function onPointerUp(){ pointerActive = false; pointerFire = false; }
@@ -350,8 +425,8 @@
     reset();
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
-    canvas.addEventListener('pointerdown', onPointerDown);
-    canvas.addEventListener('pointermove', onPointerMove);
+    canvas.addEventListener('pointerdown', onPointerDown, { passive: false });
+    canvas.addEventListener('pointermove', onPointerMove, { passive: false });
     window.addEventListener('pointerup', onPointerUp);
     animId = requestAnimationFrame(loop);
 
@@ -363,6 +438,8 @@
         canvas.removeEventListener('pointerdown', onPointerDown);
         canvas.removeEventListener('pointermove', onPointerMove);
         window.removeEventListener('pointerup', onPointerUp);
+        // Free offscreen grid cache
+        if(gridCanvas){ gridCanvas.width = 0; gridCanvas.height = 0; gridCanvas = null; }
       },
     };
   }

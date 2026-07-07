@@ -10,10 +10,12 @@
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const isCoarse = window.matchMedia('(pointer: coarse)').matches;
 
+    // On mobile: far fewer particles, no connecting lines (the line-drawing
+    // loop in particles.js is O(n²) and visibly stresses Android Chrome).
     particlesJS('particles-bg', {
       particles: {
         number: {
-          value: isCoarse ? 34 : 62,
+          value: isCoarse ? 20 : 62,
           density: { enable: true, value_area: 1000 },
         },
         color: { value: ['#3fe0d0', '#ff8a42'] },
@@ -21,10 +23,14 @@
         opacity: { value: 0.4, random: true, anim: { enable: false } },
         size: { value: 2, random: true },
         line_linked: {
-          enable: true, distance: 130, color: '#3fe0d0', opacity: 0.12, width: 1,
+          // Disable entirely on mobile — O(n²) per frame, big cost for a subtle effect
+          enable: !isCoarse,
+          distance: 130, color: '#3fe0d0', opacity: 0.12, width: 1,
         },
         move: {
-          enable: !prefersReducedMotion, speed: 0.45, direction: 'none',
+          enable: !prefersReducedMotion,
+          speed: isCoarse ? 0.3 : 0.45,
+          direction: 'none',
           random: true, straight: false, out_mode: 'out', bounce: false,
         },
       },
@@ -39,7 +45,7 @@
           grab: { distance: 150, line_linked: { opacity: 0.35 } },
         },
       },
-      retina_detect: true,
+      retina_detect: false, // retina doubles the canvas resolution — not worth it for bg dots
     });
   }
 

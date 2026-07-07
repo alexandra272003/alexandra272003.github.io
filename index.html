@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
 <title>Alexandra Pratap Singh — ML Engineer &amp; Data Scientist</title>
 <meta name="description" content="Portfolio of Alexandra Pratap Singh — ML Engineer, Data Scientist, and PyPI author of pycleanframe." />
 
@@ -37,24 +39,52 @@
     <div class="boot-label">INITIALIZING FLIGHT COMPUTER // CALIBRATING LIMITS <span>{{ bootProgress }}%</span></div>
   </div>
 
+  <!-- Skip to content for accessibility -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Scroll progress indicator -->
+  <div class="scroll-progress" ref="scrollProgress" aria-hidden="true"></div>
+
   <!-- NAV -->
   <header class="nav" :class="{ 'nav--solid': scrolled }">
-    <a href="#hero" class="nav-mark">A<span>PS</span></a>
-    <nav class="nav-links">
+    <a href="#hero" class="nav-mark" aria-label="Home">A<span>PS</span></a>
+    <nav class="nav-links" role="navigation" aria-label="Main navigation">
       <a v-for="link in navLinks" :key="link.id" :href="'#' + link.id"
-         :class="{ active: activeSection === link.id }">{{ link.label }}</a>
+         :class="{ active: activeSection === link.id }"
+         :aria-label="'Navigate to ' + link.label">{{ link.label }}</a>
     </nav>
-    <button class="nav-toggle" @click="menuOpen = !menuOpen" aria-label="Toggle menu">
-      <span></span><span></span><span></span>
-    </button>
-    <a class="nav-cta" href="#contact">Transmit <em>&rarr;</em></a>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <button class="theme-toggle" @click="toggleTheme" 
+              :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+              title="Toggle theme">
+        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/>
+          <line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+      <button class="nav-toggle" @click="menuOpen = !menuOpen" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <a class="nav-cta" href="#contact">Transmit <em>&rarr;</em></a>
+    </div>
   </header>
 
-  <div class="nav-mobile" v-if="menuOpen">
-    <a v-for="link in navLinks" :key="link.id" :href="'#' + link.id" @click="menuOpen = false">{{ link.label }}</a>
+  <div class="nav-mobile" v-if="menuOpen" role="navigation" aria-label="Mobile navigation">
+    <a v-for="link in navLinks" :key="link.id" :href="'#' + link.id" @click="menuOpen = false"
+       :aria-label="'Navigate to ' + link.label">{{ link.label }}</a>
   </div>
 
-  <main>
+  <main id="main-content">
 
     <!-- ============ HERO ============ -->
     <section id="hero" class="hero">
@@ -99,8 +129,11 @@
 
       <div class="about-grid">
         <div class="about-card about-portrait">
-          <div class="about-portrait-frame">
-            <img src="https://avatars.githubusercontent.com/u/143160283?v=4" alt="Alexandra Pratap Singh" loading="lazy" />
+          <div class="about-portrait-frame avatar-loading" :class="{ 'avatar-loaded': avatarLoaded }">
+            <img src="https://avatars.githubusercontent.com/u/143160283?v=4" 
+                 alt="Portrait of Alexandra Pratap Singh" 
+                 loading="lazy"
+                 @load="avatarLoaded = true" />
           </div>
           <div class="about-portrait-glow" aria-hidden="true"></div>
           <div class="about-portrait-tag">STATUS: <span>ACTIVE</span></div>
@@ -128,9 +161,9 @@
           </div>
 
           <div class="about-links">
-            <a href="https://github.com/alexandra272003" target="_blank" rel="noopener">GitHub &#8599;</a>
-            <a href="https://www.linkedin.com/in/alexandra-pratap-singh-aaab88282" target="_blank" rel="noopener">LinkedIn &#8599;</a>
-            <a href="https://pypi.org/project/pycleanframe/" target="_blank" rel="noopener">PyPI &#8599;</a>
+            <a href="https://github.com/alexandra272003" target="_blank" rel="noopener" aria-label="Visit GitHub profile">GitHub &#8599;</a>
+            <a href="https://www.linkedin.com/in/alexandra-pratap-singh-aaab88282" target="_blank" rel="noopener" aria-label="Visit LinkedIn profile">LinkedIn &#8599;</a>
+            <a href="https://pypi.org/project/pycleanframe/" target="_blank" rel="noopener" aria-label="View pycleanframe on PyPI">PyPI &#8599;</a>
           </div>
         </div>
       </div>
@@ -192,14 +225,17 @@
         <div class="projects-rail" aria-hidden="true"><div class="projects-rail-fill" ref="railFill"></div></div>
 
         <transition-group tag="div" name="project-fade" class="projects-list">
-          <article class="project-row" v-for="(p, i) in filteredProjects" :key="p.name" :data-index="String(i+1).padStart(2,'0')">
-            <div class="project-row-index">{{ String(i+1).padStart(2,'0') }}</div>
+          <article class="project-row" v-for="(p, i) in filteredProjects" :key="p.name" 
+                   :data-index="String(i+1).padStart(2,'0')"
+                   role="article"
+                   :aria-labelledby="'project-title-' + i">
+            <div class="project-row-index" aria-hidden="true">{{ String(i+1).padStart(2,'0') }}</div>
             <div class="project-row-main">
-              <h3>{{ p.name }}</h3>
+              <h3 :id="'project-title-' + i">{{ p.name }}</h3>
               <p class="project-tagline">{{ p.tagline }}</p>
               <p class="project-desc">{{ p.desc }}</p>
-              <div class="project-tags">
-                <span v-for="t in p.tags" :key="t">{{ t }}</span>
+              <div class="project-tags" role="list" aria-label="Technologies used">
+                <span v-for="t in p.tags" :key="t" role="listitem">{{ t }}</span>
               </div>
             </div>
             <div class="project-row-side">
@@ -207,7 +243,7 @@
                 <span class="metric-value">{{ p.metric }}</span>
                 <span class="metric-label">{{ p.metricLabel }}</span>
               </div>
-              <a :href="p.url" target="_blank" rel="noopener" class="project-link">Repo &rarr;</a>
+              <a :href="p.url" target="_blank" rel="noopener" :aria-label="'View ' + p.name + ' repository on GitHub'" class="project-link">Repo &rarr;</a>
             </div>
           </article>
         </transition-group>
@@ -227,25 +263,25 @@
       </div>
 
       <div class="arcade-grid">
-        <div class="arcade-card">
+        <div class="arcade-card" tabindex="0" role="article" aria-labelledby="game-flappy-title">
           <div class="arcade-card-glow arcade-card-glow--cyan" aria-hidden="true"></div>
           <div class="arcade-card-thumb">
             <img src="images/game-flappy-preview.png" alt="Flappy Bird gameplay preview — cyan bird threading amber pipes" loading="lazy" />
           </div>
           <span class="arcade-code">SIM.01</span>
-          <h3>Flappy Bird</h3>
+          <h3 id="game-flappy-title">Flappy Bird</h3>
           <p>Written by hand, because why not. Thread the gaps, one tap at a time.</p>
-          <button class="btn btn--primary" @click="openGame('flappy')">Run Simulation I</button>
+          <button class="btn btn--primary" @click="openGame('flappy')" aria-label="Start Flappy Bird simulation">Run Simulation I</button>
         </div>
-        <div class="arcade-card">
+        <div class="arcade-card" tabindex="0" role="article" aria-labelledby="game-alien-title">
           <div class="arcade-card-glow arcade-card-glow--amber" aria-hidden="true"></div>
           <div class="arcade-card-thumb">
             <img src="images/game-alien-preview.png" alt="Alien Onslaught gameplay preview — wave of aliens under fire" loading="lazy" />
           </div>
           <span class="arcade-code">SIM.02</span>
-          <h3>Alien Onslaught</h3>
+          <h3 id="game-alien-title">Alien Onslaught</h3>
           <p>Waves scale forever. Survive the swarm, outgun the drop-off.</p>
-          <button class="btn btn--primary" @click="openGame('alien')">Run Simulation II</button>
+          <button class="btn btn--primary" @click="openGame('alien')" aria-label="Start Alien Onslaught simulation">Run Simulation II</button>
         </div>
       </div>
     </section>
@@ -259,9 +295,9 @@
         <a href="mailto:alexandraofficial2003@gmail.com" class="btn btn--primary">alexandraofficial2003@gmail.com</a>
       </div>
       <div class="contact-links">
-        <a href="https://github.com/alexandra272003" target="_blank" rel="noopener">GitHub</a>
-        <a href="https://www.linkedin.com/in/alexandra-pratap-singh-aaab88282" target="_blank" rel="noopener">LinkedIn</a>
-        <a href="https://pypi.org/project/pycleanframe/" target="_blank" rel="noopener">PyPI</a>
+        <a href="https://github.com/alexandra272003" target="_blank" rel="noopener" aria-label="Visit GitHub profile">GitHub</a>
+        <a href="https://www.linkedin.com/in/alexandra-pratap-singh-aaab88282" target="_blank" rel="noopener" aria-label="Visit LinkedIn profile">LinkedIn</a>
+        <a href="https://pypi.org/project/pycleanframe/" target="_blank" rel="noopener" aria-label="View pycleanframe on PyPI">PyPI</a>
       </div>
     </section>
 
@@ -272,14 +308,17 @@
   </footer>
 
   <!-- ============ GAME MODAL ============ -->
-  <div class="game-modal" v-if="activeGame" @click.self="closeGame">
+  <div class="game-modal" v-if="activeGame" @click.self="closeGame" role="dialog" aria-modal="true" aria-labelledby="game-modal-title">
     <div class="game-modal-panel">
       <div class="game-modal-head">
-        <span>{{ activeGame === 'flappy' ? 'SIM.01 — FLAPPY BIRD' : 'SIM.02 — ALIEN ONSLAUGHT' }}</span>
-        <button class="game-modal-close" @click="closeGame" aria-label="Close game">&times;</button>
+        <span id="game-modal-title">{{ activeGame === 'flappy' ? 'SIM.01 — FLAPPY BIRD' : 'SIM.02 — ALIEN ONSLAUGHT' }}</span>
+        <button class="game-modal-close" @click="closeGame" aria-label="Close game modal">&times;</button>
       </div>
       <div class="game-modal-body">
-        <canvas ref="gameCanvas" id="game-canvas" width="480" height="640"></canvas>
+        <canvas ref="gameCanvas" id="game-canvas"
+                :width="isMobile ? Math.min(360, screenW) : 480"
+                :height="isMobile ? Math.min(560, screenH - 80) : 640"
+                style="touch-action: none;"></canvas>
         <div class="game-hint">{{ activeGame === 'flappy' ? 'Click / Tap / Space to flap' : 'Arrow Keys or A/D to move — Space to fire' }}</div>
       </div>
     </div>
