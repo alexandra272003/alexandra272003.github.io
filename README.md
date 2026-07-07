@@ -4,13 +4,13 @@ A single-page portfolio built with **Vue 3**, **GSAP + ScrollTrigger**, **Three.
 No build step — just static files, ready for GitHub Pages.
 
 ## What's inside
-- `index.html` — page structure + Vue app mount point
-- `css/style.css` — full design system (dark mission-control / flight-computer theme: signal cyan + ignition amber, HUD corner brackets, telemetry type)
-- `js/app.js` — Vue app (content, nav state, tab/filter state, GSAP scroll orchestration)
-- `js/heroScene.js` — Three.js hero scene: rotating wireframe core + orbiting particle field, mouse-parallax
-- `js/particlesConfig.js` — particles.js ambient network background, palette-matched
-- `js/games/flappyBird.js` — hand-written Flappy Bird (canvas)
-- `js/games/alienShooter.js` — endless-wave alien shooter (canvas)
+- `index.html` — page structure + Vue app mount point.
+- `css/style.css` — full design system (dark mission-control / flight-computer theme: signal cyan + ignition amber, HUD corner brackets, telemetry type).
+- `js/app.js` — Vue app (content, nav state, tab/filter state, GSAP scroll orchestration).
+- `js/heroScene.js` — Three.js hero scene: rotating wireframe core + orbiting particle field, mouse-parallax.
+- `js/particlesConfig.js` — particles.js ambient network background, palette-matched.
+- `js/games/flappyBird.js` — hand-written Flappy Bird (canvas).
+- `js/games/alienShooter.js` — endless-wave alien shooter (canvas).
 
 ## What's new in this pass
 - **Three.js hero scene** — a rotating wireframe icosahedron with an orbiting particle shell, sitting behind the hero copy and gently tracking the pointer.
