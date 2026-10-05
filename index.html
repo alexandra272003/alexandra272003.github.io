@@ -3,323 +3,321 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
 <title>Alexandra Pratap Singh — ML Engineer &amp; Data Scientist</title>
-<meta name="description" content="Portfolio of Alexandra Pratap Singh — ML Engineer, Data Scientist, and PyPI author of pycleanframe." />
+<meta name="description" content="Portfolio of Alexandra Pratap Singh — ML engineer, data scientist, backend developer and PyPI author of pycleanframe." />
 
-<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka:wght@400;500;600;700&family=Permanent+Marker&display=swap" rel="stylesheet">
 
-<link rel="icon" href="https://avatars.githubusercontent.com/u/143160283?v=4" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%AE%3C/text%3E%3C/svg%3E" />
 <link rel="stylesheet" href="css/style.css" />
-
-<!-- Three.js (hero scene) + particles.js (ambient field) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
 </head>
 <body>
 
-<div id="app">
+<!-- Reusable shapes -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="splat" viewBox="0 0 100 100">
+      <path fill="currentColor" d="M50 6c8 0 10 12 18 14s20-6 24 4-8 16-6 24 14 10 10 20-16 6-22 12-2 18-12 18-12-12-20-14-20 6-24-4 8-16 6-24-14-10-10-20 16-6 22-12S42 6 50 6z"/>
+      <circle fill="currentColor" cx="10" cy="20" r="5"/><circle fill="currentColor" cx="93" cy="82" r="4"/><circle fill="currentColor" cx="88" cy="10" r="3"/>
+    </symbol>
+    <symbol id="sparkle" viewBox="0 0 100 100">
+      <path fill="currentColor" stroke="#3B2340" stroke-width="5" stroke-linejoin="round" d="M50 4l11 33 33 13-33 13-11 33-11-33-33-13 33-13z"/>
+    </symbol>
+  </defs>
+</svg>
 
-  <!-- Ambient particle network (particles.js) -->
-  <div id="particles-bg" class="particles-bg" aria-hidden="true"></div>
+<div id="app" v-cloak>
 
-  <!-- HUD overlay / scanline / grid -->
-  <div class="fx-overlay" aria-hidden="true"></div>
-  <div class="fx-grid" aria-hidden="true"></div>
-  <div class="fx-vignette" aria-hidden="true"></div>
-
-  <!-- Boot / calibration gate -->
-  <div class="boot-screen" :class="{ 'is-hidden': booted }" aria-hidden="true">
-    <div class="boot-mark">A.P.S</div>
-    <div class="boot-bar"><div class="boot-bar-fill" :style="{ width: bootProgress + '%' }"></div></div>
-    <div class="boot-label">INITIALIZING FLIGHT COMPUTER // CALIBRATING LIMITS <span>{{ bootProgress }}%</span></div>
-  </div>
-
-  <!-- Skip to content for accessibility -->
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
-  <!-- Scroll progress indicator -->
-  <div class="scroll-progress" ref="scrollProgress" aria-hidden="true"></div>
-
-  <!-- NAV -->
-  <header class="nav" :class="{ 'nav--solid': scrolled }">
-    <a href="#hero" class="nav-mark" aria-label="Home">A<span>PS</span></a>
-    <nav class="nav-links" role="navigation" aria-label="Main navigation">
-      <a v-for="link in navLinks" :key="link.id" :href="'#' + link.id"
-         :class="{ active: activeSection === link.id }"
-         :aria-label="'Navigate to ' + link.label">{{ link.label }}</a>
-    </nav>
-    <div style="display: flex; align-items: center; gap: 8px;">
-      <button class="theme-toggle" @click="toggleTheme" 
-              :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
-              title="Toggle theme">
-        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="12" r="5"/>
-          <line x1="12" y1="1" x2="12" y2="3"/>
-          <line x1="12" y1="21" x2="12" y2="23"/>
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-          <line x1="1" y1="12" x2="3" y2="12"/>
-          <line x1="21" y1="12" x2="23" y2="12"/>
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-        </svg>
-        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-        </svg>
-      </button>
-      <button class="nav-toggle" @click="menuOpen = !menuOpen" aria-label="Toggle menu" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
-      <a class="nav-cta" href="#contact">Transmit <em>&rarr;</em></a>
+  <!-- HUD / NAV -->
+  <header class="hud">
+    <div class="hud-inner">
+      <button class="logo" @click="tapLogo" aria-label="Alexandra Pratap Singh, back to top">APS</button>
+      <nav class="hud-nav" aria-label="Main navigation">
+        <a v-for="link in navLinks" :key="link.id" :href="'#' + link.id" :class="{ active: activeSection === link.id }">{{ link.label }}</a>
+      </nav>
+      <div class="hud-score" aria-live="polite">
+        <span class="hud-world">{{ worldLabel }}</span>
+        <button class="hud-secrets" :class="{ 'is-done': allFound }" @click="showList = true" aria-label="Open secrets checklist">&#127852; {{ found.length }}/{{ secrets.length }}</button>
+      </div>
+      <button class="menu-btn" @click="menuOpen = !menuOpen" :aria-expanded="menuOpen" aria-label="Toggle menu">Menu</button>
+    </div>
+    <div class="hud-mobile" v-if="menuOpen">
+      <a v-for="link in navLinks" :key="link.id" :href="'#' + link.id" @click="menuOpen = false">{{ link.label }}</a>
     </div>
   </header>
-
-  <div class="nav-mobile" v-if="menuOpen" role="navigation" aria-label="Mobile navigation">
-    <a v-for="link in navLinks" :key="link.id" :href="'#' + link.id" @click="menuOpen = false"
-       :aria-label="'Navigate to ' + link.label">{{ link.label }}</a>
-  </div>
 
   <main id="main-content">
 
     <!-- ============ HERO ============ -->
-    <section id="hero" class="hero">
-      <canvas ref="heroCanvas" class="hero-three" aria-hidden="true"></canvas>
-      <div class="hero-aura" aria-hidden="true"></div>
-      <div class="hero-horizon" aria-hidden="true"></div>
+    <section id="hero" class="stage stage--sky hero">
+      <div class="deco" aria-hidden="true">
+        <svg class="splat" style="color:#FFC4DC;width:260px;left:-70px;top:40px"><use href="#splat"/></svg>
+        <svg class="splat" style="color:#D9CCFF;width:220px;right:-50px;top:110px"><use href="#splat"/></svg>
+        <svg class="splat" style="color:#B5F2DC;width:170px;left:7%;bottom:60px"><use href="#splat"/></svg>
+        <svg class="doodle float" style="color:#fff;width:46px;right:20%;bottom:16%"><use href="#sparkle"/></svg>
+        <svg class="doodle float float--slow" style="color:#FFD84D;width:38px;left:22%;top:12%"><use href="#sparkle"/></svg>
+      </div>
 
-      <div class="hero-content">
-        <p class="eyebrow" data-reveal><span class="eyebrow-dot"></span>PRAYAGRAJ, INDIA &middot; MCA DATA SCIENCE</p>
-        <h1 class="hero-title">
-          <span class="line">ALEXANDRA</span>
-          <span class="line hero-title--accent">PRATAP SINGH</span>
-        </h1>
-        <p class="hero-role" data-reveal>ML Engineer <span class="dot">&bull;</span> Data Scientist <span class="dot">&bull;</span> PyPI Author</p>
-        <p class="hero-desc" data-reveal>
-          I build ML systems, NLP pipelines and open-source Python tooling that solve real problems.
-          Every model retrained past its first pass. Every pipeline shipped past the point where
-          "good enough" lives — <strong>this is engineering with no ceiling.</strong>
-        </p>
-        <div class="hero-actions" data-reveal>
-          <a href="#projects" class="btn btn--primary">View Projects</a>
-          <a href="#simulator" class="btn btn--ghost">Enter the Simulator</a>
+      <div class="wrap hero-split">
+        <figure class="hero-photo">
+          <span class="tape" aria-hidden="true"></span>
+          <div class="photo-frame">
+            <img src="images/me-now.jpg" alt="Black-and-white photo of me sitting indoors, looking off to the side" />
+          </div>
+          <button class="secret secret--photo" @click="findSecret('photo', $event)" aria-label="Hidden item">&#128248;</button>
+        </figure>
+
+        <div class="hero-copy">
+          <p class="sticker sticker--pink">Player 1</p>
+          <h1 class="graffiti hero-title">
+            <span class="hero-first">Alexandra</span>
+            <span class="hero-last">Pratap Singh</span>
+          </h1>
+          <p class="hero-role">ML engineer &bull; Data scientist &bull; Backend builder</p>
+          <p class="hero-desc">
+            I'm an MCA Data Science student at the University of Allahabad. I teach computers to learn from data,
+            build the APIs around them, and publish open-source Python tools like <strong>pycleanframe</strong>.
+            Scroll down to play through my projects.
+          </p>
+          <div class="hero-actions">
+            <a href="#about" class="btn btn--yellow blink">&#9654; Press start</a>
+            <a href="#projects" class="btn btn--white">See my quests</a>
+          </div>
         </div>
       </div>
 
-      <div class="hero-stats" ref="heroStats">
-        <div class="stat" v-for="s in stats" :key="s.label">
-          <span class="stat-value" :data-count="s.value">0</span><span class="stat-suffix">{{ s.suffix }}</span>
-          <span class="stat-label">{{ s.label }}</span>
-        </div>
+      <div class="wrap">
+        <dl class="scoreboard">
+          <div class="score" v-for="s in stats" :key="s.label">
+            <dd class="score-value">{{ s.value }}</dd>
+            <dt class="score-label">{{ s.label }}</dt>
+          </div>
+        </dl>
       </div>
-
-      <a href="#about" class="scroll-cue" aria-label="Scroll down"><span></span></a>
     </section>
 
     <!-- ============ ABOUT ============ -->
-    <section id="about" class="about">
-      <div class="section-head">
-        <p class="section-eyebrow">LOG.01 // OPERATOR PROFILE</p>
-        <h2 class="section-title">The Build Behind the Model</h2>
+    <section id="about" class="stage stage--vanilla">
+      <div class="deco" aria-hidden="true">
+        <svg class="splat" style="color:#FFC4DC;width:170px;right:-40px;top:30px;opacity:.7"><use href="#splat"/></svg>
+        <svg class="splat" style="color:#B5F2DC;width:130px;left:-30px;bottom:10px;opacity:.8"><use href="#splat"/></svg>
       </div>
+      <div class="wrap">
+        <h2 class="graffiti section-title">Level 1: About me</h2>
 
-      <div class="about-grid">
-        <div class="about-card about-portrait">
-          <div class="about-portrait-frame avatar-loading" :class="{ 'avatar-loaded': avatarLoaded }">
-            <img src="https://avatars.githubusercontent.com/u/143160283?v=4" 
-                 alt="Portrait of Alexandra Pratap Singh" 
-                 loading="lazy"
-                 @load="avatarLoaded = true" />
-          </div>
-          <div class="about-portrait-glow" aria-hidden="true"></div>
-          <div class="about-portrait-tag">STATUS: <span>ACTIVE</span></div>
-        </div>
-
-        <div class="about-copy">
-          <p>
-            I'm Alexandra — currently pursuing my <strong>MCA in Data Science at the University of Allahabad</strong>,
-            and building things in the space between raw data and working software. My tools are Python,
-            scikit-learn, TensorFlow and PyTorch; my obsession is turning messy real-world data into
-            pipelines that actually hold up in production.
-          </p>
-          <p>
-            I published <strong>pycleanframe</strong> to PyPI — a decorator-based library that keeps
-            pandas DataFrames clean before they ever reach your function. I've trained classifiers
-            on 10,000+ equipment records, built NLP pipelines that cut recruiter review time by
-            60%, and shipped a full-stack vaccination tracker that placed top&nbsp;5 out of 198 teams
-            at UHACK&nbsp;3.0.
-          </p>
-
-          <div class="about-directive">
-            <span class="about-directive-tag">DIRECTIVE</span>
-            <p>No ceiling. Every project here shipped past its first working version — until it stopped
-              feeling like a student build and started feeling like it belonged in production.</p>
+        <div class="about-grid">
+          <div class="note">
+            <span class="tape" aria-hidden="true"></span>
+            <p>
+              Hi! I'm Alexandra. I'm doing my <strong>MCA in Data Science at the University of Allahabad</strong>
+              and I love the part where messy data turns into something that actually works. My tools are Python,
+              scikit-learn, TensorFlow and PyTorch.
+            </p>
+            <p>
+              I published <strong>pycleanframe</strong> on PyPI, trained classifiers on 10,000+ equipment records,
+              built an NLP pipeline that cut resume review time by 60%, and placed top&nbsp;5 out of 198 teams at
+              UHACK&nbsp;3.0 with a vaccination tracker.
+            </p>
+            <p>
+              Lately I'm into backend and GenAI: a RAG pipeline built from scratch and measured with
+              Precision@k, Recall@k and MRR, a streaming chat backend, and APIs with JWT, Redis and Celery.
+            </p>
+            <button class="secret secret--candy" @click="findSecret('candy', $event)" aria-label="Hidden item">&#127852;</button>
           </div>
 
-          <div class="about-links">
-            <a href="https://github.com/alexandra272003" target="_blank" rel="noopener" aria-label="Visit GitHub profile">GitHub &#8599;</a>
-            <a href="https://www.linkedin.com/in/alexandra-pratap-singh-aaab88282" target="_blank" rel="noopener" aria-label="Visit LinkedIn profile">LinkedIn &#8599;</a>
-            <a href="https://pypi.org/project/pycleanframe/" target="_blank" rel="noopener" aria-label="View pycleanframe on PyPI">PyPI &#8599;</a>
-          </div>
+          <aside class="card character" aria-label="Character card">
+            <h3>Character card</h3>
+            <dl>
+              <div><dt>Class</dt><dd>ML engineer</dd></div>
+              <div><dt>Home base</dt><dd>Prayagraj, India</dd></div>
+              <div><dt>School</dt><dd>University of Allahabad (MCA, Data Science)</dd></div>
+              <div><dt>Side quests</dt><dd>Open source (GSSoC) and PyPI</dd></div>
+            </dl>
+            <div class="link-row">
+              <a href="https://github.com/alexandra272003" target="_blank" rel="noopener">GitHub</a>
+              <a href="https://www.linkedin.com/in/alexandra-pratap-singh-aaab88282" target="_blank" rel="noopener">LinkedIn</a>
+              <a href="https://pypi.org/project/pycleanframe/" target="_blank" rel="noopener">PyPI</a>
+            </div>
+          </aside>
         </div>
       </div>
     </section>
 
     <!-- ============ SKILLS ============ -->
-    <section id="skills" class="skills">
-      <div class="section-head">
-        <p class="section-eyebrow">LOG.02 // SYSTEMS &amp; TOOLING</p>
-        <h2 class="section-title">Stack &amp; Techniques</h2>
+    <section id="skills" class="stage stage--mint">
+      <div class="deco" aria-hidden="true">
+        <svg class="splat" style="color:#FFC4DC;width:190px;left:-50px;top:60px;opacity:.9"><use href="#splat"/></svg>
+        <svg class="splat" style="color:#D9CCFF;width:160px;right:-30px;bottom:40px;opacity:.9"><use href="#splat"/></svg>
       </div>
-
-      <div class="skills-tabs" role="tablist" aria-label="Skill categories">
-        <div class="skills-tab-indicator" ref="skillsIndicator" aria-hidden="true"></div>
-        <button
-          v-for="(group, i) in skillGroups" :key="group.title"
-          class="skills-tab" :class="{ 'is-active': activeSkillIndex === i }"
-          :ref="el => setSkillsTabRef(el, i)"
-          role="tab" :aria-selected="activeSkillIndex === i"
-          @click="activeSkillIndex = i">
-          <span class="skills-tab-code">{{ group.code }}</span>
-          <span class="skills-tab-title">{{ group.title }}</span>
-        </button>
-      </div>
-
-      <div class="skills-panel-wrap">
-        <transition name="skill-swap" mode="out-in">
-          <div class="skills-panel" :key="activeSkillIndex" role="tabpanel">
-            <ul class="skills-panel-list">
-              <li v-for="(tool, ti) in skillGroups[activeSkillIndex].tools" :key="tool"
-                  :style="{ transitionDelay: (ti * 0.05) + 's' }">{{ tool }}</li>
+      <div class="wrap">
+        <h2 class="graffiti section-title">Level 2: Power-ups</h2>
+        <p class="section-sub">Everything I've collected so far, grouped by type.</p>
+        <div class="skills-grid">
+          <article class="card skill" v-for="(group, i) in skillGroups" :key="group.title" :class="'skill--' + (i % 3)">
+            <h3><span class="skill-icon" aria-hidden="true">{{ skillIcons[i] }}</span> {{ group.title }}</h3>
+            <ul>
+              <li v-for="tool in group.tools" :key="tool">{{ tool }}</li>
             </ul>
-          </div>
-        </transition>
+          </article>
+        </div>
+        <button class="secret secret--cookie" @click="findSecret('cookie', $event)" aria-label="Hidden item">&#127850;</button>
       </div>
     </section>
 
     <!-- ============ PROJECTS ============ -->
-    <section id="projects" class="projects">
-      <div class="section-head">
-        <p class="section-eyebrow">LOG.03 // MISSION ARCHIVE</p>
-        <h2 class="section-title">Project Archive</h2>
+    <section id="projects" class="stage stage--lav">
+      <div class="deco" aria-hidden="true">
+        <svg class="splat" style="color:#FFD84D;width:220px;right:-60px;top:20px;opacity:.8"><use href="#splat"/></svg>
+        <svg class="splat" style="color:#B5F2DC;width:150px;left:-40px;top:55%;opacity:.9"><use href="#splat"/></svg>
       </div>
+      <div class="wrap">
+        <h2 class="graffiti section-title">Level 3: Quests</h2>
+        <p class="section-sub">{{ projects.length }} quests completed. Search them or pick a technology.</p>
 
-      <div class="projects-filter">
-        <label class="projects-search">
-          <span class="projects-search-icon">&gt;</span>
-          <input type="text" v-model="searchQuery" placeholder="SEARCH ARCHIVE..." aria-label="Search projects" />
-        </label>
-        <div class="projects-tags" role="group" aria-label="Filter by tag">
-          <button
-            v-for="tag in allTags" :key="tag" class="tag-chip"
-            :class="{ 'is-active': activeTags.includes(tag) }"
-            @click="toggleTag(tag)">{{ tag }}</button>
+        <div class="filters">
+          <label class="search">
+            <span aria-hidden="true">&#128269;</span>
+            <input type="text" v-model="searchQuery" placeholder="Search quests" aria-label="Search projects" />
+          </label>
+          <div class="chips" role="group" aria-label="Filter by technology">
+            <button v-for="tag in allTags" :key="tag" class="chip" :class="{ 'is-active': activeTags.includes(tag) }"
+                    :aria-pressed="activeTags.includes(tag)" @click="toggleTag(tag)">{{ tag }}</button>
+          </div>
         </div>
-      </div>
 
-      <div class="projects-body">
-        <div class="projects-rail" aria-hidden="true"><div class="projects-rail-fill" ref="railFill"></div></div>
-
-        <transition-group tag="div" name="project-fade" class="projects-list">
-          <article class="project-row" v-for="(p, i) in filteredProjects" :key="p.name" 
-                   :data-index="String(i+1).padStart(2,'0')"
-                   role="article"
-                   :aria-labelledby="'project-title-' + i">
-            <div class="project-row-index" aria-hidden="true">{{ String(i+1).padStart(2,'0') }}</div>
-            <div class="project-row-main">
-              <h3 :id="'project-title-' + i">{{ p.name }}</h3>
-              <p class="project-tagline">{{ p.tagline }}</p>
-              <p class="project-desc">{{ p.desc }}</p>
-              <div class="project-tags" role="list" aria-label="Technologies used">
-                <span v-for="t in p.tags" :key="t" role="listitem">{{ t }}</span>
+        <transition-group tag="div" name="project-fade" class="project-grid">
+          <article class="card quest" v-for="p in filteredProjects" :key="p.name">
+            <span class="tape" aria-hidden="true"></span>
+            <h3>{{ p.name }}</h3>
+            <p class="quest-tagline">{{ p.tagline }}</p>
+            <p class="quest-desc">{{ p.desc }}</p>
+            <ul class="quest-tags">
+              <li v-for="t in p.tags" :key="t">{{ t }}</li>
+            </ul>
+            <div class="quest-foot">
+              <div class="reward" v-if="p.metric">
+                <span class="reward-value">{{ p.metric }}</span>
+                <span class="reward-label">{{ p.metricLabel }}</span>
               </div>
-            </div>
-            <div class="project-row-side">
-              <div class="project-metric" v-if="p.metric">
-                <span class="metric-value">{{ p.metric }}</span>
-                <span class="metric-label">{{ p.metricLabel }}</span>
-              </div>
-              <a :href="p.url" target="_blank" rel="noopener" :aria-label="'View ' + p.name + ' repository on GitHub'" class="project-link">Repo &rarr;</a>
+              <a :href="p.url" target="_blank" rel="noopener" class="btn btn--blue btn--sm" :aria-label="'Open ' + p.name + ' on GitHub'">Open repo</a>
             </div>
           </article>
         </transition-group>
-      </div>
 
-      <transition name="empty-fade">
-        <p class="projects-empty" v-if="filteredProjects.length === 0">NO RECORDS MATCH THAT QUERY.</p>
-      </transition>
+        <div class="empty card" v-if="filteredProjects.length === 0">
+          <p>No quests match that search.</p>
+          <button class="btn btn--yellow btn--sm" @click="clearFilters">Clear filters</button>
+        </div>
+        <button class="secret secret--gem" @click="findSecret('gem', $event)" aria-label="Hidden item">&#128142;</button>
+      </div>
     </section>
 
-    <!-- ============ SIMULATOR ============ -->
-    <section id="simulator" class="arcade">
-      <div class="section-head">
-        <p class="section-eyebrow">LOG.04 // SIMULATION DECK</p>
-        <h2 class="section-title">Beyond Human Limits</h2>
-        <p class="section-sub">Play Flappy Bird or dodge an alien swarm — cuz why not. No autopilot, just reflexes.</p>
+    <!-- ============ ARCADE ============ -->
+    <section id="simulator" class="stage stage--bubble">
+      <div class="deco" aria-hidden="true">
+        <svg class="splat" style="color:#fff;width:160px;left:-30px;top:30px;opacity:.6"><use href="#splat"/></svg>
+        <svg class="splat" style="color:#6FD3FF;width:170px;right:-40px;bottom:30px;opacity:.7"><use href="#splat"/></svg>
       </div>
-
-      <div class="arcade-grid">
-        <div class="arcade-card" tabindex="0" role="article" aria-labelledby="game-flappy-title">
-          <div class="arcade-card-glow arcade-card-glow--cyan" aria-hidden="true"></div>
-          <div class="arcade-card-thumb">
-            <img src="images/game-flappy-preview.png" alt="Flappy Bird gameplay preview — cyan bird threading amber pipes" loading="lazy" />
-          </div>
-          <span class="arcade-code">SIM.01</span>
-          <h3 id="game-flappy-title">Flappy Bird</h3>
-          <p>Written by hand, because why not. Thread the gaps, one tap at a time.</p>
-          <button class="btn btn--primary" @click="openGame('flappy')" aria-label="Start Flappy Bird simulation">Run Simulation I</button>
+      <div class="wrap">
+        <h2 class="graffiti section-title">Bonus round: Arcade</h2>
+        <p class="section-sub">Two games I wrote by hand with the Canvas API. Your best score is saved in your browser.</p>
+        <div class="game-grid">
+          <article class="card arcade">
+            <img src="images/game-flappy-preview.png" alt="Flappy Bird gameplay preview" loading="lazy" />
+            <h3>Flappy Bird</h3>
+            <p>Thread the gaps one tap at a time.</p>
+            <button class="btn btn--yellow" @click="openGame('flappy')">&#9654; Play</button>
+          </article>
+          <article class="card arcade">
+            <img src="images/game-alien-preview.png" alt="Alien Onslaught gameplay preview" loading="lazy" />
+            <h3>Alien Onslaught</h3>
+            <p>Endless waves that get harder as you go.</p>
+            <button class="btn btn--yellow" @click="openGame('alien')">&#9654; Play</button>
+          </article>
         </div>
-        <div class="arcade-card" tabindex="0" role="article" aria-labelledby="game-alien-title">
-          <div class="arcade-card-glow arcade-card-glow--amber" aria-hidden="true"></div>
-          <div class="arcade-card-thumb">
-            <img src="images/game-alien-preview.png" alt="Alien Onslaught gameplay preview — wave of aliens under fire" loading="lazy" />
-          </div>
-          <span class="arcade-code">SIM.02</span>
-          <h3 id="game-alien-title">Alien Onslaught</h3>
-          <p>Waves scale forever. Survive the swarm, outgun the drop-off.</p>
-          <button class="btn btn--primary" @click="openGame('alien')" aria-label="Start Alien Onslaught simulation">Run Simulation II</button>
-        </div>
+        <button class="secret secret--ghost" @click="findSecret('ghost', $event)" aria-label="Hidden item">&#128123;</button>
       </div>
     </section>
 
     <!-- ============ CONTACT ============ -->
-    <section id="contact" class="contact">
-      <div class="hero-aura hero-aura--contact" aria-hidden="true"></div>
-      <p class="section-eyebrow">LOG.05 // TRANSMIT</p>
-      <h2 class="section-title contact-title">Let's build something<br />with no ceiling.</h2>
-      <div class="contact-actions">
-        <a href="mailto:alexandraofficial2003@gmail.com" class="btn btn--primary">alexandraofficial2003@gmail.com</a>
+    <section id="contact" class="stage stage--choc contact">
+      <div class="deco" aria-hidden="true">
+        <svg class="splat" style="color:#FF6FA5;width:200px;left:-50px;bottom:-30px;opacity:.85"><use href="#splat"/></svg>
+        <svg class="splat" style="color:#6FD3FF;width:150px;right:6%;top:30px;opacity:.8"><use href="#splat"/></svg>
+        <svg class="doodle float" style="color:#FFD84D;width:52px;right:12%;bottom:22%"><use href="#sparkle"/></svg>
       </div>
-      <div class="contact-links">
-        <a href="https://github.com/alexandra272003" target="_blank" rel="noopener" aria-label="Visit GitHub profile">GitHub</a>
-        <a href="https://www.linkedin.com/in/alexandra-pratap-singh-aaab88282" target="_blank" rel="noopener" aria-label="Visit LinkedIn profile">LinkedIn</a>
-        <a href="https://pypi.org/project/pycleanframe/" target="_blank" rel="noopener" aria-label="View pycleanframe on PyPI">PyPI</a>
+      <div class="wrap contact-wrap">
+        <h2 class="graffiti section-title contact-title">Level complete!</h2>
+        <p class="contact-sub">Want to team up, or have a role or internship in ML, data or backend? Say hi.</p>
+        <a href="mailto:alexandraofficial2003@gmail.com" class="btn btn--yellow">alexandraofficial2003@gmail.com</a>
+        <div class="link-row link-row--light">
+          <a href="https://github.com/alexandra272003" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://www.linkedin.com/in/alexandra-pratap-singh-aaab88282" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://pypi.org/project/pycleanframe/" target="_blank" rel="noopener">PyPI</a>
+        </div>
+        <p class="secrets-line">Secrets found: {{ found.length }} of {{ secrets.length }}</p>
       </div>
     </section>
 
   </main>
 
   <footer class="site-footer">
-    <span>&copy; 2026 Alexandra Pratap Singh. Built with Vue, GSAP, and stubbornness.</span>
+    <div class="wrap footer-row">
+      <span>&copy; 2026 Alexandra Pratap Singh</span>
+      <button class="secret secret--door" @click="findSecret('door', $event)" aria-label="Hidden item">&#128682;</button>
+    </div>
   </footer>
 
-  <!-- ============ GAME MODAL ============ -->
-  <div class="game-modal" v-if="activeGame" @click.self="closeGame" role="dialog" aria-modal="true" aria-labelledby="game-modal-title">
-    <div class="game-modal-panel">
-      <div class="game-modal-head">
-        <span id="game-modal-title">{{ activeGame === 'flappy' ? 'SIM.01 — FLAPPY BIRD' : 'SIM.02 — ALIEN ONSLAUGHT' }}</span>
-        <button class="game-modal-close" @click="closeGame" aria-label="Close game modal">&times;</button>
+  <!-- Toast -->
+  <div class="toast" :class="{ 'is-on': toast }" role="status" aria-live="polite">{{ toast }}</div>
+
+  <!-- SECRETS CHECKLIST -->
+  <div class="overlay" v-if="showList" @click.self="showList = false" role="dialog" aria-modal="true" aria-labelledby="list-title">
+    <div class="card secrets-panel">
+      <h2 id="list-title" class="graffiti">Secrets</h2>
+      <p>{{ found.length }} of {{ secrets.length }} found. Click anything that looks out of place.</p>
+      <ul>
+        <li v-for="s in secrets" :key="s.id" :class="{ 'is-found': found.includes(s.id) }">
+          <span class="check" aria-hidden="true">{{ found.includes(s.id) ? '\u2713' : '?' }}</span>
+          <span>{{ found.includes(s.id) ? s.label : s.hint }}</span>
+        </li>
+      </ul>
+      <div class="win-actions">
+        <button class="btn btn--yellow btn--sm" @click="showList = false">Got it</button>
+        <button class="btn btn--white btn--sm" @click="resetSecrets">Reset</button>
       </div>
-      <div class="game-modal-body">
+    </div>
+  </div>
+
+  <!-- WIN MODAL -->
+  <div class="overlay" v-if="showWin" @click.self="showWin = false" role="dialog" aria-modal="true" aria-labelledby="win-title">
+    <div class="card win">
+      <h2 id="win-title" class="graffiti">You found them all!</h2>
+      <p>All {{ secrets.length }} secrets. Nice eyes. Want to say hi?</p>
+      <div class="win-actions">
+        <a class="btn btn--yellow" href="mailto:alexandraofficial2003@gmail.com">Send an email</a>
+        <button class="btn btn--white" @click="showWin = false">Keep exploring</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME MODAL -->
+  <div class="overlay" v-if="activeGame" @click.self="closeGame" role="dialog" aria-modal="true" aria-labelledby="game-modal-title">
+    <div class="game-panel">
+      <div class="game-head">
+        <span id="game-modal-title">{{ activeGame === 'flappy' ? 'Flappy Bird' : 'Alien Onslaught' }}</span>
+        <button class="game-close" @click="closeGame" aria-label="Close game">&times;</button>
+      </div>
+      <div class="game-body">
         <canvas ref="gameCanvas" id="game-canvas"
                 :width="isMobile ? Math.min(360, screenW) : 480"
                 :height="isMobile ? Math.min(560, screenH - 80) : 640"
                 style="touch-action: none;"></canvas>
-        <div class="game-hint">{{ activeGame === 'flappy' ? 'Click / Tap / Space to flap' : 'Arrow Keys or A/D to move — Space to fire' }}</div>
+        <div class="game-hint">{{ activeGame === 'flappy' ? 'Click, tap or press Space to flap' : 'Arrow keys or A/D to move, Space to fire' }}</div>
       </div>
     </div>
   </div>
@@ -327,10 +325,7 @@
 </div>
 
 <script src="https://unpkg.com/vue@3.4.31/dist/vue.global.prod.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="js/heroScene.js"></script>
-<script src="js/particlesConfig.js"></script>
+<script src="js/sprinkles.js"></script>
 <script src="js/games/flappyBird.js"></script>
 <script src="js/games/alienShooter.js"></script>
 <script src="js/app.js"></script>

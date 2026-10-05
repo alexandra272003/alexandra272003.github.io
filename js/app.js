@@ -9,23 +9,28 @@ const { createApp, ref, reactive, computed, watch, onMounted, nextTick } = Vue;
 createApp({
   setup(){
 
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
     /* ---------------- Content data ---------------- */
 
     const navLinks = [
-      { id: 'about',     label: 'Profile'   },
-      { id: 'skills',    label: 'Systems'   },
-      { id: 'projects',  label: 'Archive'   },
-      { id: 'simulator', label: 'Simulator' },
-      { id: 'contact',   label: 'Transmit'  },
+      { id: 'about',     label: 'Me'        },
+      { id: 'skills',    label: 'Power-ups' },
+      { id: 'projects',  label: 'Quests'    },
+      { id: 'simulator', label: 'Arcade'    },
+      { id: 'contact',   label: 'Contact'   },
     ];
 
+    const worldNames = {
+      hero: 'START', about: 'LEVEL 1', skills: 'LEVEL 2',
+      projects: 'LEVEL 3', simulator: 'BONUS', contact: 'FINISH',
+    };
+
+    const skillIcons = ['\u{1F9E0}', '\u{1F4CA}', '\u{1F5C4}\uFE0F', '\u2699\uFE0F', '\u2728', '\u{1F3A8}'];
+
     const stats = [
-      { value: 6,  suffix: '+',    label: 'Shipped ML Projects' },
-      { value: 90, suffix: '%',    label: 'Peak Model Accuracy' },
-      { value: 60, suffix: '%',    label: 'Faster Resume Screening' },
-      { value: 5,  suffix: '/198', label: 'UHACK 3.0 Finish' },
+      { value: '14+',   label: 'Projects shipped' },
+      { value: '90%',   label: 'Best model accuracy' },
+      { value: '60%',   label: 'Faster resume review' },
+      { value: 'Top 5', label: 'of 198 teams, UHACK 3.0' },
     ];
 
     const skillGroups = [
@@ -42,12 +47,84 @@ createApp({
         tools: ['MySQL', 'MongoDB', 'Git & GitHub', 'AWS', 'GCP'],
       },
       {
+        code: 'API.05', title: 'Backend & APIs',
+        tools: ['FastAPI', 'PostgreSQL', 'Redis', 'Celery', 'Docker', 'JWT'],
+      },
+      {
+        code: 'GENAI.06', title: 'Retrieval & LLM Systems',
+        tools: ['RAG', 'pgvector', 'fastembed / ONNX', 'Prompt Engineering', 'Precision@k / MRR'],
+      },
+      {
         code: 'WEB.04', title: 'Web & Tooling',
         tools: ['HTML', 'CSS', 'JavaScript', 'VS Code', 'Google Colab'],
       },
     ];
 
     const projects = [
+      {
+        name: 'RAG Pipeline',
+        tagline: 'Retrieval-augmented generation built from scratch, no framework',
+        desc: 'Upload, parse, clean, chunk, embed locally (fastembed/ONNX, bge-small) and index in Postgres + pgvector, then answer questions with cited, verified LLM responses. Evaluated on a frozen 30-question set with Precision@k, Recall@k and MRR, plus a 9-run chunk_size x top_k grid search. Ships with a live chunk-lab UI.',
+        tags: ['Python', 'FastAPI', 'pgvector', 'RAG', 'Docker'],
+        metric: '60', metricLabel: 'Tests — No API Key Needed',
+        url: 'https://github.com/alexandra272003/Rag_Pipeline',
+      },
+      {
+        name: 'Streaming Chatbot',
+        tagline: 'One chat core, three delivery modes: HTTP, SSE, WebSocket',
+        desc: 'Async FastAPI chat backend with PostgreSQL persistence and an OpenAI-compatible LLM (built against Groq). Retry/backoff for provider failures and rolling summarization to stop conversations growing unbounded.',
+        tags: ['Python', 'FastAPI', 'PostgreSQL', 'WebSocket', 'Docker'],
+        metric: '3', metricLabel: 'Delivery Modes, One Core',
+        url: 'https://github.com/alexandra272003/Streaming-Chatbot',
+      },
+      {
+        name: 'SuperBrowser',
+        tagline: 'AI-native browser with per-tab search memory',
+        desc: 'Open-source contribution (GSSoC) to a multi-engine search aggregator with context-aware AI that remembers what you searched per tab. React 19 + Vite frontend, FastAPI backend, shipped as web and desktop apps.',
+        tags: ['React', 'FastAPI', 'Vite', 'Open Source'],
+        metric: 'GSSoC', metricLabel: 'Open Source Contribution',
+        url: 'https://github.com/PandyaJeet/SuperBrowser',
+      },
+      {
+        name: 'Shopping API',
+        tagline: 'E-commerce backend that cannot oversell',
+        desc: 'FastAPI + PostgreSQL store backend with atomic stock decrements, backed by a concurrency test proving stock never goes negative under parallel orders.',
+        tags: ['Python', 'FastAPI', 'PostgreSQL', 'Concurrency'],
+        metric: '0', metricLabel: 'Oversells Under Concurrent Load',
+        url: 'https://github.com/alexandra272003?tab=repositories',
+      },
+      {
+        name: 'Secure API',
+        tagline: 'JWT auth, rate limiting and background workers',
+        desc: 'FastAPI service with JWT authentication, Redis-backed rate limiting and Celery background workers, orchestrated as a four-service Docker Compose stack.',
+        tags: ['Python', 'FastAPI', 'Redis', 'Celery', 'JWT', 'Docker'],
+        metric: '4', metricLabel: 'Services in Docker Compose',
+        url: 'https://github.com/alexandra272003?tab=repositories',
+      },
+      {
+        name: 'Ping / User API',
+        tagline: 'MongoDB CRUD with verified indexing',
+        desc: 'FastAPI + MongoDB CRUD service with compound indexes, confirmed with explain() against 5,000 documents.',
+        tags: ['Python', 'FastAPI', 'MongoDB', 'Indexing'],
+        metric: '5k', metricLabel: 'Docs Verified with explain()',
+        url: 'https://github.com/alexandra272003?tab=repositories',
+      },
+      {
+        name: 'Dog Vision',
+        tagline: 'Transfer-learning image classifier for 120 dog breeds',
+        desc: 'End-to-end computer vision pipeline: MobileNetV2 transfer learning on 10,000+ images, tf.data input pipeline, TensorBoard tracking and a Kaggle submission.',
+        tags: ['TensorFlow', 'MobileNetV2', 'Transfer Learning', 'Kaggle'],
+        metric: '120', metricLabel: 'Dog Breeds Classified',
+        url: 'https://github.com/alexandra272003?tab=repositories',
+      },
+      {
+        name: 'StegoGraphy',
+        tagline: 'Hide text, files and voice inside images',
+        desc: 'Tkinter desktop app using LSB encoding with AES-256-GCM encryption and offline speech-to-text for voice payloads. Core engine is separated from the GUI and covered by automated tests.',
+        tags: ['Python', 'Tkinter', 'Cryptography', 'Steganography'],
+        metric: 'AES-256', metricLabel: 'GCM Encrypted Payloads',
+        url: 'https://github.com/alexandra272003?tab=repositories',
+      },
       {
         name: 'CleanFrame',
         tagline: 'Decorator-based pandas cleaning, published to PyPI',
@@ -98,44 +175,18 @@ createApp({
       },
     ];
 
-    /* ---------------- Skills tabs ---------------- */
-
-    const activeSkillIndex = ref(0);
-    const skillsTabRefs = ref([]);
-    const skillsIndicator = ref(null);
-
-    function setSkillsTabRef(el, i){
-      if(el) skillsTabRefs.value[i] = el;
-    }
-
-    function moveSkillsIndicator(){
-      const btn = skillsTabRefs.value[activeSkillIndex.value];
-      const indicator = skillsIndicator.value;
-      if(!btn || !indicator) return;
-      const btnRect = btn.getBoundingClientRect();
-      const parentRect = btn.parentElement.getBoundingClientRect();
-      const x = btnRect.left - parentRect.left;
-      const w = btnRect.width;
-      if(!prefersReducedMotion && typeof gsap !== 'undefined'){
-        gsap.to(indicator, { x, width: w, duration: 0.45, ease: 'power3.out' });
-      } else {
-        indicator.style.transform = `translateX(${x}px)`;
-        indicator.style.width = w + 'px';
-      }
-    }
-
-    watch(activeSkillIndex, () => { nextTick(moveSkillsIndicator); });
-
     /* ---------------- Projects search / tag filter ---------------- */
 
     const searchQuery = ref('');
     const activeTags = ref([]);
-    const railFill = ref(null);
 
+    // Show the 10 most common technologies as filter chips.
     const allTags = computed(() => {
-      const set = new Set();
-      projects.forEach((p) => p.tags.forEach((t) => set.add(t)));
-      return Array.from(set);
+      const counts = {};
+      projects.forEach((p) => p.tags.forEach((t) => { counts[t] = (counts[t] || 0) + 1; }));
+      return Object.keys(counts)
+        .sort((a, b) => counts[b] - counts[a] || a.localeCompare(b))
+        .slice(0, 10);
     });
 
     const filteredProjects = computed(() => {
@@ -158,307 +209,117 @@ createApp({
       else activeTags.value.splice(idx, 1);
     }
 
-    /* ---------------- Hero 3D scene / ambient particles ---------------- */
-
-    const heroCanvas = ref(null);
-    let heroSceneInstance = null;
-
-    function initHeroScene(){
-      if(heroCanvas.value && window.HeroScene){
-        heroSceneInstance = window.HeroScene.init(heroCanvas.value);
-      }
+    function clearFilters(){
+      searchQuery.value = '';
+      activeTags.value = [];
     }
 
-    function initParticlesBg(){
-      if(window.ParticlesBg) window.ParticlesBg.init();
-    }
+    /* ---------------- HUD / nav state ---------------- */
 
-    /* ---------------- Boot sequence ---------------- */
-
-    const booted = ref(prefersReducedMotion);
-    const bootProgress = ref(prefersReducedMotion ? 100 : 0);
-
-    function runBoot(){
-      if(prefersReducedMotion){ afterBoot(); return; }
-      const timer = setInterval(() => {
-        bootProgress.value = Math.min(100, bootProgress.value + (Math.random() * 16 + 8));
-        if(bootProgress.value >= 100){
-          clearInterval(timer);
-          setTimeout(() => { booted.value = true; afterBoot(); }, 280);
-        }
-      }, 130);
-    }
-
-    function afterBoot(){
-      animateStats();
-      runHeroIntro();
-    }
-
-    /* ---------------- Stat counters (scramble-then-settle) ---------------- */
-
-    function animateStats(){
-      const els = document.querySelectorAll('.stat-value');
-      els.forEach((el) => {
-        const target = parseFloat(el.dataset.count);
-        if(prefersReducedMotion || typeof gsap === 'undefined'){
-          el.textContent = target;
-          return;
-        }
-        let frame = 0;
-        const scrambleFrames = 9;
-        const scramble = setInterval(() => {
-          el.textContent = Math.floor(Math.random() * (target > 20 ? 99 : 9));
-          frame++;
-          if(frame >= scrambleFrames){
-            clearInterval(scramble);
-            const proxy = { val: 0 };
-            gsap.to(proxy, {
-              val: target, duration: 1.1, ease: 'power2.out',
-              onUpdate: () => { el.textContent = Math.floor(proxy.val); },
-            });
-          }
-        }, 45);
-      });
-    }
-
-    /* ---------------- GSAP orchestration ---------------- */
-
-    function splitChars(el){
-      const text = el.textContent;
-      el.textContent = '';
-      const frag = document.createDocumentFragment();
-      text.split('').forEach((ch) => {
-        const span = document.createElement('span');
-        span.className = 'char';
-        span.style.display = 'inline-block';
-        span.textContent = ch === ' ' ? '\u00A0' : ch;
-        frag.appendChild(span);
-      });
-      el.appendChild(frag);
-      return el.querySelectorAll('.char');
-    }
-
-    function runHeroIntro(){
-      if(prefersReducedMotion || typeof gsap === 'undefined') return;
-
-      const lines = document.querySelectorAll('.hero-title .line');
-      let charDelay = 0;
-      lines.forEach((line, i) => {
-        const chars = splitChars(line);
-        gsap.from(chars, {
-          yPercent: 110, opacity: 0, duration: 0.7, ease: 'power4.out',
-          stagger: 0.02, delay: 0.1 + i * 0.25,
-        });
-        charDelay = 0.1 + i * 0.25 + chars.length * 0.02;
-      });
-
-      gsap.from('.hero [data-reveal]', {
-        opacity: 0, y: 24, duration: 0.9, stagger: 0.12, ease: 'power3.out',
-        delay: charDelay + 0.1,
-      });
-      gsap.from('.hero-stats', {
-        opacity: 0, y: 20, duration: 0.9, delay: charDelay + 0.5, ease: 'power3.out',
-      });
-    }
-
-    function initScrollReveals(){
-      if(prefersReducedMotion || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
-      gsap.registerPlugin(ScrollTrigger);
-
-      document.querySelectorAll('main > section:not(.hero)').forEach((section) => {
-        const targets = section.querySelectorAll(
-          '.section-head, .about-portrait, .about-copy > *, .skills-tabs, .skills-panel-wrap, .projects-filter, .project-row, .arcade-card, .contact-actions, .contact-links'
-        );
-        if(!targets.length) return;
-        gsap.from(targets, {
-          opacity: 0, y: 26, duration: 0.7, ease: 'power2.out', stagger: 0.07,
-          scrollTrigger: { trigger: section, start: 'top 80%' },
-        });
-      });
-
-      // Parallax drift on the hero background layers as the page scrolls away
-      gsap.to('.hero-horizon', {
-        y: 130, ease: 'none',
-        scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 0.6 },
-      });
-      gsap.to('.hero-aura', {
-        y: -90, ease: 'none',
-        scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 0.6 },
-      });
-    }
-
-    /* ---------------- Cinematic scroll: scramble titles ---------------- */
-
-    const SCRAMBLE_GLYPHS = '!<>-_\\/[]{}—=+*^?#01';
-
-    function scrambleReveal(el, finalText, duration){
-      let frame = 0;
-      const totalFrames = Math.round(duration * 60);
-      const timer = setInterval(() => {
-        let out = '';
-        for(let i = 0; i < finalText.length; i++){
-          if(finalText[i] === ' '){ out += ' '; continue; }
-          const revealAt = (i / finalText.length) * totalFrames + totalFrames * 0.35;
-          out += frame >= revealAt ? finalText[i] : SCRAMBLE_GLYPHS[Math.floor(Math.random() * SCRAMBLE_GLYPHS.length)];
-        }
-        el.textContent = out;
-        frame++;
-        if(frame > totalFrames){
-          el.textContent = finalText;
-          clearInterval(timer);
-        }
-      }, 1000 / 60);
-    }
-
-    function initScrambleTitles(){
-      if(prefersReducedMotion || typeof ScrollTrigger === 'undefined') return;
-      document.querySelectorAll('.section-title').forEach((el) => {
-        if(el.children.length) return; // skip titles with markup (e.g. <br/>)
-        const finalText = el.textContent;
-        ScrollTrigger.create({
-          trigger: el, start: 'top 85%', once: true,
-          onEnter: () => scrambleReveal(el, finalText, 0.85),
-        });
-      });
-    }
-
-    /* ---------------- Cinematic scroll: mission progress rail ---------------- */
-
-    function initProjectsRail(){
-      if(prefersReducedMotion || typeof ScrollTrigger === 'undefined') return;
-      ScrollTrigger.create({
-        trigger: '.projects-body',
-        start: 'top 70%',
-        end: 'bottom 60%',
-        scrub: true,
-        onUpdate(self){
-          if(railFill.value) railFill.value.style.height = (self.progress * 100) + '%';
-        },
-      });
-    }
-
-    /* ---------------- Pointer-driven flourishes ---------------- */
-
-    function initCursor(){
-      if(prefersReducedMotion || typeof gsap === 'undefined' || window.matchMedia('(pointer: coarse)').matches) return;
-      const cursor = document.createElement('div');
-      cursor.className = 'hud-cursor';
-      document.body.appendChild(cursor);
-      gsap.set(cursor, { xPercent: -50, yPercent: -50 });
-      const moveX = gsap.quickTo(cursor, 'x', { duration: 0.35, ease: 'power3.out' });
-      const moveY = gsap.quickTo(cursor, 'y', { duration: 0.35, ease: 'power3.out' });
-      window.addEventListener('mousemove', (e) => { moveX(e.clientX); moveY(e.clientY); });
-
-      document.querySelectorAll('a, button, .arcade-card, .project-row, .skills-tab, .tag-chip').forEach((el) => {
-        el.addEventListener('mouseenter', () => cursor.classList.add('is-active'));
-        el.addEventListener('mouseleave', () => cursor.classList.remove('is-active'));
-      });
-    }
-
-    function initMagneticButtons(){
-      if(prefersReducedMotion || typeof gsap === 'undefined') return;
-      document.querySelectorAll('.btn').forEach((btn) => {
-        btn.addEventListener('mousemove', (e) => {
-          const r = btn.getBoundingClientRect();
-          const x = e.clientX - r.left - r.width / 2;
-          const y = e.clientY - r.top - r.height / 2;
-          gsap.to(btn, { x: x * 0.25, y: y * 0.45, duration: 0.3, ease: 'power2.out' });
-        });
-        btn.addEventListener('mouseleave', () => {
-          gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.4)' });
-        });
-      });
-    }
-
-    function initCardTilt(){
-      if(prefersReducedMotion || typeof gsap === 'undefined') return;
-      document.querySelectorAll('.arcade-card').forEach((card) => {
-        card.addEventListener('mousemove', (e) => {
-          const r = card.getBoundingClientRect();
-          const px = (e.clientX - r.left) / r.width - 0.5;
-          const py = (e.clientY - r.top) / r.height - 0.5;
-          gsap.to(card, {
-            rotateY: px * 7, rotateX: -py * 7, duration: 0.4, ease: 'power2.out',
-            transformPerspective: 600,
-          });
-        });
-        card.addEventListener('mouseleave', () => {
-          gsap.to(card, { rotateY: 0, rotateX: 0, duration: 0.6, ease: 'power3.out' });
-        });
-      });
-    }
-
-    function initHeroParallax(){
-      if(prefersReducedMotion || typeof gsap === 'undefined') return;
-      window.addEventListener('mousemove', (e) => {
-        const relX = e.clientX / window.innerWidth - 0.5;
-        gsap.to('.hero-aura', { x: relX * -40, duration: 0.7, ease: 'power2.out' });
-      });
-    }
-
-    /* ---------------- Nav / scroll state ---------------- */
-
-    const scrolled = ref(false);
     const menuOpen = ref(false);
     const activeSection = ref('hero');
     const sectionIds = ['hero', 'about', 'skills', 'projects', 'simulator', 'contact'];
-    const scrollProgress = ref(null);
-    const avatarLoaded = ref(false);
-
-    /* ---------------- Theme Management ---------------- */
-
-    const THEME_KEY = 'aps_portfolio_theme';
-    const isDark = ref(true);
-
-    function initTheme(){
-      // Check localStorage first, then system preference
-      const saved = localStorage.getItem(THEME_KEY);
-      if(saved){
-        isDark.value = saved === 'dark';
-      } else {
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        isDark.value = prefersDark;
-      }
-      applyTheme();
-    }
-
-    function toggleTheme(){
-      isDark.value = !isDark.value;
-      localStorage.setItem(THEME_KEY, isDark.value ? 'dark' : 'light');
-      applyTheme();
-    }
-
-    function applyTheme(){
-      if(isDark.value){
-        document.documentElement.classList.remove('light-theme');
-      } else {
-        document.documentElement.classList.add('light-theme');
-      }
-    }
+    const worldLabel = computed(() => worldNames[activeSection.value] || 'START');
 
     function initObservers(){
-      // Scroll progress bar
-      window.addEventListener('scroll', () => {
-        scrolled.value = window.scrollY > 10;
-        
-        // Update scroll progress indicator
-        if(scrollProgress.value){
-          const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-          const scrollPercent = (window.scrollY / docHeight) * 100;
-          scrollProgress.value.style.transform = `scaleX(${scrollPercent / 100})`;
-        }
-      }, { passive: true });
-
       const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if(entry.isIntersecting) activeSection.value = entry.target.id;
         });
       }, { rootMargin: '-40% 0px -50% 0px', threshold: 0 });
-
       sectionIds.forEach((id) => {
         const el = document.getElementById(id);
         if(el) observer.observe(el);
       });
+    }
+
+    /* ---------------- Hidden secrets ---------------- */
+
+    const SECRETS_KEY = 'aps_portfolio_secrets_v3';
+    const secrets = [
+      { id: 'photo',  label: 'Say cheese',            hint: 'Something is hiding around the photo frame at the top.' },
+      { id: 'logo',   label: 'Logo tapper',           hint: 'Tap the APS logo three times, fast.' },
+      { id: 'candy',  label: 'Candy in the notebook', hint: 'Something sweet is stuck in the About notebook.' },
+      { id: 'cookie', label: 'Cookie crumb',          hint: 'Power-ups section, near the top right.' },
+      { id: 'gem',    label: 'Shiny gem',             hint: 'Below the project cards, bottom left.' },
+      { id: 'ghost',  label: 'Arcade ghost',          hint: 'The Arcade is haunted, bottom right.' },
+      { id: 'door',   label: 'Tiny door',             hint: 'Scroll all the way to the footer.' },
+    ];
+    const found = ref([]);
+    const toast = ref('');
+    const showWin = ref(false);
+    const showList = ref(false);
+    const allFound = computed(() => found.value.length === secrets.length);
+    let toastTimer = null;
+    let logoTaps = 0;
+    let logoTimer = null;
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const PAINT = ['#FF6FA5', '#6FD3FF', '#FFD84D', '#7CE3B6', '#B28CFF', '#FF9F5A'];
+
+    function say(msg, ms){
+      toast.value = msg;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { toast.value = ''; }, ms || 2800);
+    }
+
+    function burstConfetti(x, y, n){
+      if(window.Confetti) window.Confetti.burst(x, y, n);
+    }
+
+    function sprinkleStorm(){
+      if(window.Sprinkles) window.Sprinkles.storm();
+      if(window.Confetti) window.Confetti.rain(120);
+    }
+
+    function findSecret(id, ev){
+      const el = ev && ev.currentTarget;
+      if(el){
+        const r = el.getBoundingClientRect();
+        burstConfetti(r.left + r.width / 2, r.top + r.height / 2, 80);
+        el.classList.add('is-found');
+      }
+      if(found.value.includes(id)){ say('You already found that one!'); return; }
+      found.value.push(id);
+      try { localStorage.setItem(SECRETS_KEY, JSON.stringify(found.value)); } catch (e) { /* ignore */ }
+      const s = secrets.find((x) => x.id === id);
+      say('Secret found: ' + (s ? s.label : id) + ' (' + found.value.length + '/' + secrets.length + ')');
+      if(allFound.value) setTimeout(() => { showWin.value = true; if(window.Confetti) window.Confetti.celebrate(); }, 700);
+    }
+
+    function resetSecrets(){
+      found.value = [];
+      try { localStorage.removeItem(SECRETS_KEY); } catch (e) { /* ignore */ }
+      document.querySelectorAll('.secret.is-found').forEach((el) => el.classList.remove('is-found'));
+      say('Progress reset. Happy hunting!');
+    }
+
+    function tapLogo(){
+      window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+      logoTaps++;
+      clearTimeout(logoTimer);
+      logoTimer = setTimeout(() => { logoTaps = 0; }, 1200);
+      if(logoTaps >= 3){
+        logoTaps = 0;
+        findSecret('logo', { currentTarget: document.querySelector('.logo') });
+      }
+    }
+
+    function initKonami(){
+      const code = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+      let pos = 0;
+      window.addEventListener('keydown', (e) => {
+        const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+        pos = key === code[pos] ? pos + 1 : (key === code[0] ? 1 : 0);
+        if(pos === code.length){ pos = 0; sprinkleStorm(); say('Konami code! Sprinkle storm!'); }
+      });
+    }
+
+    function loadSecrets(){
+      try {
+        const saved = JSON.parse(localStorage.getItem(SECRETS_KEY) || '[]');
+        found.value = saved.filter((id) => secrets.some((s) => s.id === id));
+      } catch (e) { found.value = []; }
     }
 
     /* ---------------- Game modal bridge ---------------- */
@@ -472,8 +333,6 @@ createApp({
 
     function openGame(key){
       activeGame.value = key;
-      // Lock body scroll while the game modal is open — prevents the page from
-      // scrolling when the player swipes on Android Chrome.
       document.body.classList.add('game-open');
       nextTick(() => {
         const canvas = gameCanvas.value;
@@ -496,54 +355,38 @@ createApp({
     /* ---------------- Lifecycle ---------------- */
 
     onMounted(() => {
-      initTheme();
+      loadSecrets();
+      if(window.Sprinkles) window.Sprinkles.init();
       initObservers();
-      initScrollReveals();
-      initCursor();
-      initMagneticButtons();
-      initCardTilt();
-      initHeroParallax();
-      initHeroScene();
-      initParticlesBg();
-      initScrambleTitles();
-      initProjectsRail();
-      runBoot();
-      nextTick(moveSkillsIndicator);
-      window.addEventListener('resize', moveSkillsIndicator);
-      
-      // Keyboard navigation: Escape closes game modal
-      window.addEventListener('keydown', (e) => {
-        if(e.key === 'Escape' && activeGame.value) closeGame();
-      });
-
-      // Smooth scroll for anchor links
-      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-        anchor.addEventListener('click', function (e) {
-          const href = this.getAttribute('href');
-          if(href === '#' || !href) return;
-          const target = document.querySelector(href);
-          if(target){
-            e.preventDefault();
-            menuOpen.value = false; // Close mobile menu if open
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            // Update URL without jumping
-            history.pushState(null, '', href);
+      initKonami();
+      // One gentle nudge per visit so people know the hunt exists.
+      setTimeout(() => {
+        try {
+          if(found.value.length === 0 && !sessionStorage.getItem('aps_hint_shown')){
+            sessionStorage.setItem('aps_hint_shown', '1');
+            say('Psst! 7 secrets are hiding on this page. Tap the candy counter for hints.', 5000);
           }
-        });
+        } catch (e) { /* ignore */ }
+      }, 4500);
+      window.addEventListener('keydown', (e) => {
+        if(e.key !== 'Escape') return;
+        if(activeGame.value) closeGame();
+        else if(showWin.value) showWin.value = false;
+        else if(showList.value) showList.value = false;
+      });
+      // Keep found secrets visible after a reload.
+      nextTick(() => {
+        const map = { photo: '.secret--photo', candy: '.secret--candy', cookie: '.secret--cookie', gem: '.secret--gem', ghost: '.secret--ghost', door: '.secret--door' };
+        found.value.forEach((id) => { const el = map[id] && document.querySelector(map[id]); if(el) el.classList.add('is-found'); });
       });
     });
 
     return {
-      navLinks, stats, skillGroups, projects,
-      booted, bootProgress,
-      scrolled, menuOpen, activeSection, scrollProgress,
-      activeGame, gameCanvas, openGame, closeGame,
-      isMobile, screenW, screenH,
-      activeSkillIndex, setSkillsTabRef, skillsIndicator,
-      searchQuery, activeTags, allTags, filteredProjects, toggleTag,
-      heroCanvas, railFill,
-      isDark, toggleTheme,
-      avatarLoaded,
+      navLinks, stats, skillGroups, skillIcons, projects,
+      menuOpen, activeSection, worldLabel,
+      secrets, found, allFound, toast, showWin, showList, findSecret, tapLogo, resetSecrets,
+      activeGame, gameCanvas, openGame, closeGame, isMobile, screenW, screenH,
+      searchQuery, activeTags, allTags, filteredProjects, toggleTag, clearFilters,
     };
   },
 }).mount('#app');

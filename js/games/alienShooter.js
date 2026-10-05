@@ -31,9 +31,9 @@
     ctx.restore();
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.strokeStyle = '#ff8a42';
+    ctx.strokeStyle = '#FF6FA5';
     ctx.lineWidth = 2.5;
-    ctx.shadowColor = 'rgba(255,138,66,0.7)';
+    ctx.shadowColor = 'rgba(255,111,165,0.7)';
     ctx.shadowBlur = 10;
     ctx.stroke();
     ctx.shadowBlur = 0;
@@ -76,7 +76,7 @@
       gridCanvas.width = W;
       gridCanvas.height = H;
       gridCtx = gridCanvas.getContext('2d');
-      gridCtx.strokeStyle = 'rgba(237,242,247,0.05)';
+      gridCtx.strokeStyle = 'rgba(232,236,246,0.05)';
       gridCtx.lineWidth = 1;
       for(let gx = 0; gx < W; gx += 32){
         gridCtx.beginPath(); gridCtx.moveTo(gx, 0); gridCtx.lineTo(gx, H); gridCtx.stroke();
@@ -157,7 +157,7 @@
       if(state !== 'playing' || fireTimer > 0) return;
       bullets.push({ x: player.x + PLAYER_W / 2 - 2, y: player.y - 6 });
       fireTimer = FIRE_COOLDOWN;
-      burst(player.x + PLAYER_W / 2, player.y - 6, '#3fe0d0', isMobile ? 1 : 2);
+      burst(player.x + PLAYER_W / 2, player.y - 6, '#FFD84D', isMobile ? 1 : 2);
     }
 
     function hitPlayer(){
@@ -165,7 +165,7 @@
       lives--;
       player.invuln = 90;
       hitFlash = 10;
-      burst(player.x + PLAYER_W / 2, player.y, '#ff8a42', isMobile ? 8 : 16);
+      burst(player.x + PLAYER_W / 2, player.y, '#FF6FA5', isMobile ? 8 : 16);
       if(lives <= 0){
         state = 'dead';
         if(score > best){ best = score; localStorage.setItem(STORAGE_KEY, String(best)); }
@@ -237,7 +237,7 @@
             if(b.x > ax - 4 && b.x < ax + ALIEN_W + 4 && b.y > ay - 4 && b.y < ay + ALIEN_H + 4){
               a.alive = false; b.y = -999;
               score += 10 + ew;
-              burst(ax + ALIEN_W / 2, ay + ALIEN_H / 2, a.tier === 0 ? '#ff8a42' : '#3fe0d0', isMobile ? 5 : 10);
+              burst(ax + ALIEN_W / 2, ay + ALIEN_H / 2, a.tier === 0 ? '#FF6FA5' : '#FFD84D', isMobile ? 5 : 10);
             }
           });
         });
@@ -271,7 +271,7 @@
         if(!gridDrawn) buildGridCache();
         ctx.drawImage(gridCanvas, 0, 0);
       } else {
-        ctx.strokeStyle = 'rgba(237,242,247,0.05)';
+        ctx.strokeStyle = 'rgba(232,236,246,0.05)';
         ctx.lineWidth = 1;
         for(let gx = 0; gx < W; gx += 32){ ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
         for(let gy = 0; gy < H; gy += 32){ ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
@@ -279,7 +279,7 @@
     }
 
     function drawAlien(x, y, tier){
-      const color = tier === 0 ? '#ff8a42' : '#3fe0d0';
+      const color = tier === 0 ? '#FF6FA5' : '#FFD84D';
       // Skip shadow blur on mobile — it's one of the most expensive canvas ops
       if(!isLowEnd){
         ctx.shadowColor = color; ctx.shadowBlur = 8;
@@ -287,7 +287,7 @@
       ctx.fillStyle = color;
       ctx.fillRect(x, y, ALIEN_W, ALIEN_H);
       ctx.shadowBlur = 0;
-      ctx.fillStyle = '#04070a';
+      ctx.fillStyle = '#3B2340';
       ctx.fillRect(x + 5, y + 5, 5, 5);
       ctx.fillRect(x + ALIEN_W - 10, y + 5, 5, 5);
     }
@@ -296,9 +296,9 @@
       if(player.invuln > 0 && Math.floor(frame / 4) % 2 === 0) return;
       const cx = player.x + PLAYER_W / 2;
       if(!isLowEnd){
-        ctx.shadowColor = 'rgba(63,224,208,0.6)'; ctx.shadowBlur = 12;
+        ctx.shadowColor = 'rgba(255,216,77,0.6)'; ctx.shadowBlur = 12;
       }
-      ctx.fillStyle = '#3fe0d0';
+      ctx.fillStyle = '#FFD84D';
       ctx.beginPath();
       ctx.moveTo(cx, player.y);
       ctx.lineTo(player.x, player.y + PLAYER_H);
@@ -306,24 +306,24 @@
       ctx.closePath();
       ctx.fill();
       ctx.shadowBlur = 0;
-      ctx.fillStyle = '#04070a';
+      ctx.fillStyle = '#3B2340';
       ctx.fillRect(cx - 3, player.y + 8, 6, 6);
     }
 
     function draw(){
-      ctx.fillStyle = hitFlash > 0 ? '#170a08' : '#04070a';
+      ctx.fillStyle = hitFlash > 0 ? '#5A3560' : '#3B2340';
       ctx.fillRect(0, 0, W, H);
       drawGrid();
 
       aliens.forEach((a) => { if(a.alive) drawAlien(a.baseX + groupOffsetX, a.baseY + groupDropY, a.tier); });
 
-      if(!isLowEnd){ ctx.shadowColor = 'rgba(63,224,208,0.7)'; ctx.shadowBlur = 8; }
-      ctx.fillStyle = '#3fe0d0';
+      if(!isLowEnd){ ctx.shadowColor = 'rgba(255,216,77,0.7)'; ctx.shadowBlur = 8; }
+      ctx.fillStyle = '#FFD84D';
       bullets.forEach((b) => { ctx.fillRect(b.x - 2, b.y - 8, 4, 12); });
       ctx.shadowBlur = 0;
 
-      if(!isLowEnd){ ctx.shadowColor = 'rgba(255,138,66,0.7)'; ctx.shadowBlur = 8; }
-      ctx.fillStyle = '#ff8a42';
+      if(!isLowEnd){ ctx.shadowColor = 'rgba(255,111,165,0.7)'; ctx.shadowBlur = 8; }
+      ctx.fillStyle = '#FF6FA5';
       alienBullets.forEach((b) => { ctx.fillRect(b.x - 2, b.y - 6, 4, 10); });
       ctx.shadowBlur = 0;
 
@@ -338,45 +338,45 @@
 
       // HUD
       ctx.textAlign = 'left';
-      ctx.font = "600 13px 'JetBrains Mono', monospace";
-      ctx.fillStyle = '#edf2f7';
+      ctx.font = "600 13px 'Fredoka', sans-serif";
+      ctx.fillStyle = '#E8ECF6';
       ctx.fillText('SCORE ' + score, 16, 26);
-      ctx.fillStyle = '#8a93a6';
+      ctx.fillStyle = '#9AA6C3';
       ctx.fillText('WAVE ' + wave, 16, 44);
 
       ctx.textAlign = 'right';
-      ctx.fillStyle = '#8a93a6';
+      ctx.fillStyle = '#9AA6C3';
       ctx.fillText('BEST ' + best, W - 16, 26);
-      ctx.fillStyle = '#ff8a42';
+      ctx.fillStyle = '#FF6FA5';
       ctx.fillText('LIVES ' + Math.max(0, lives), W - 16, 44);
       ctx.textAlign = 'left';
 
       if(state === 'ready'){
         ctx.textAlign = 'center';
         drawAvatarBadge(ctx, W / 2, H / 2 - 96, 38);
-        ctx.fillStyle = '#edf2f7';
-        ctx.font = "700 22px 'Space Grotesk', sans-serif";
+        ctx.fillStyle = '#E8ECF6';
+        ctx.font = "700 22px 'Bangers', cursive";
         ctx.fillText('ALIEN ONSLAUGHT', W / 2, H / 2 - 26);
-        ctx.font = "500 12px 'JetBrains Mono', monospace";
-        ctx.fillStyle = '#8a93a6';
+        ctx.font = "500 12px 'Fredoka', sans-serif";
+        ctx.fillStyle = '#9AA6C3';
         ctx.fillText('ARROWS / A-D TO MOVE — SPACE TO FIRE', W / 2, H / 2 + 4);
-        ctx.font = "500 10.5px 'JetBrains Mono', monospace";
-        ctx.fillStyle = '#5b6478';
+        ctx.font = "500 10.5px 'Fredoka', sans-serif";
+        ctx.fillStyle = '#6E7A99';
         ctx.fillText(TAGLINE, W / 2, H / 2 + 26);
         ctx.textAlign = 'left';
       }
       if(state === 'dead'){
-        ctx.fillStyle = 'rgba(5,7,10,0.62)';
+        ctx.fillStyle = 'rgba(59,35,64,0.62)';
         ctx.fillRect(0, 0, W, H);
         ctx.textAlign = 'center';
-        ctx.fillStyle = '#ff8a42';
-        ctx.font = "700 24px 'Space Grotesk', sans-serif";
+        ctx.fillStyle = '#FF6FA5';
+        ctx.font = "700 24px 'Bangers', cursive";
         ctx.fillText('SWARM OVERRUN', W / 2, H / 2 - 20);
-        ctx.fillStyle = '#edf2f7';
-        ctx.font = "600 14px 'JetBrains Mono', monospace";
+        ctx.fillStyle = '#E8ECF6';
+        ctx.font = "600 14px 'Fredoka', sans-serif";
         ctx.fillText('SCORE ' + score + '   WAVE ' + wave + '   BEST ' + best, W / 2, H / 2 + 10);
-        ctx.fillStyle = '#8a93a6';
-        ctx.font = "500 12px 'JetBrains Mono', monospace";
+        ctx.fillStyle = '#9AA6C3';
+        ctx.font = "500 12px 'Fredoka', sans-serif";
         ctx.fillText('TAP TO RETRY', W / 2, H / 2 + 38);
         ctx.textAlign = 'left';
       }
