@@ -1,22 +1,24 @@
 # Alexandra Pratap Singh — Portfolio
 
-A single-page portfolio built with **Vue 3**, **GSAP + ScrollTrigger**, **Three.js**, **particles.js**, and vanilla **Canvas** games.
-No build step — just static files, ready for GitHub Pages.
+A single-page portfolio built with **Vue 3** and vanilla **Canvas**. Playful game-style UI: pastel colors, thick outlines, falling sprinkles, confetti, hidden secrets, and two playable games.
+No build step, just static files, ready for GitHub Pages.
 
 ## What's inside
-- `index.html` — page structure + Vue app mount point.
-- `css/style.css` — full design system (dark mission-control / flight-computer theme: signal cyan + ignition amber, HUD corner brackets, telemetry type).
-- `js/app.js` — Vue app (content, nav state, tab/filter state, GSAP scroll orchestration).
-- `js/heroScene.js` — Three.js hero scene: rotating wireframe core + orbiting particle field, mouse-parallax.
-- `js/particlesConfig.js` — particles.js ambient network background, palette-matched.
-- `js/games/flappyBird.js` — hand-written Flappy Bird (canvas).
-- `js/games/alienShooter.js` — endless-wave alien shooter (canvas).
+- `index.html`: page structure + Vue app mount point.
+- `css/style.css`: the whole design (pastel palette, drips between sections, animated backgrounds, HUD, cards, modals).
+- `js/app.js`: Vue app (projects, skills, stats, search/filter, secrets hunt, game modal).
+- `js/sprinkles.js`: falling-sprinkle background canvas + the confetti engine.
+- `js/games/flappyBird.js`: hand-written Flappy Bird (canvas).
+- `js/games/alienShooter.js`: endless-wave alien shooter (canvas).
+- `images/`: your photo (`me-now.jpg`) and the two game preview screenshots.
 
-## What's new in this pass
-- **Three.js hero scene** — a rotating wireframe icosahedron with an orbiting particle shell, sitting behind the hero copy and gently tracking the pointer.
-- **particles.js ambient field** — a full-page, palette-matched particle network with a subtle hover "grab" interaction, layered behind the existing HUD grid.
-- **Cinematic GSAP/ScrollTrigger** — the About portrait now pins in place while the copy scrolls past it (desktop only); section titles decode in with a matrix-style scramble as they enter the viewport; the Project Archive has a scroll-scrubbed "mission progress rail" that fills as you move through the list.
-- **Richer Vue interactivity** — Skills is now an animated tab interface with a sliding indicator; the Project Archive has a live search box and toggleable tag chips, with entries animating in/out via `<transition-group>`.
+## Features
+- **Hero:** photo on the left, bio on the right, with a scoreboard of highlights underneath.
+- **Projects:** live search box and technology chips, with cards animating in and out.
+- **Secrets hunt:** 7 hidden items to find. Click the candy counter in the top bar for hints and a checklist. Every find fires confetti, and finding all 7 triggers a celebration. Progress is saved in the browser.
+- **Easter egg:** try the Konami code (up, up, down, down, left, right, left, right, B, A).
+- **Arcade:** Flappy Bird and Alien Onslaught open in a modal. Best scores are saved in the browser.
+- **Motion:** sprinkles, drifting backgrounds, and floating shapes all respect `prefers-reduced-motion`.
 
 ## Run locally
 Any static server works, e.g.:
@@ -45,13 +47,13 @@ python3 -m http.server 8000
 6. Add the link to your LinkedIn "Featured" section and GitHub profile README.
 
 ## Editing content
-- Projects, skills, and stats live in `js/app.js` at the top of `setup()` — edit the arrays directly, no build step needed.
-- Colors, fonts, and layout tokens are in the `:root` block at the top of `css/style.css`.
-- Hero 3D scene tuning (core size, particle count/color, rotation speed) lives in `js/heroScene.js`.
-- Ambient particle background tuning (count, colors, link distance) lives in `js/particlesConfig.js`.
+- **Projects, skills, stats:** arrays at the top of `setup()` in `js/app.js`. Edit them directly.
+- **Repo links:** several project entries still point to `https://github.com/alexandra272003?tab=repositories`. Search `app.js` for `?tab=repositories` and replace each with the exact repo URL.
+- **Secrets:** the `secrets` array in `js/app.js` holds the names and hints. The hidden buttons live in `index.html` (look for `class="secret`).
+- **Colors and fonts:** the `:root` block at the top of `css/style.css`.
+- **Sprinkles and confetti:** counts, colors and speed live in `js/sprinkles.js`.
+- **Hero photo:** replace `images/me-now.jpg`.
 
 ## Notes
-- Both games save a personal best to `localStorage` (per-browser).
-- All external libraries (Vue, GSAP, ScrollTrigger, Three.js, particles.js, Google Fonts) load from CDNs — no `npm install` required.
-- All new motion (3D scene, particles, scramble text, pinning) respects `prefers-reduced-motion` and degrades to a static, still-readable page.
-
+- Vue and Google Fonts (Bangers, Fredoka, Permanent Marker) load from CDNs, so no `npm install` is needed.
+- Both games and the secrets hunt save progress to `localStorage` (per browser).
